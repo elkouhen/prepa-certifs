@@ -491,4 +491,4 @@ Trap: JumpStart != Bedrock
 ## SageMaker Studio
 Definition: A unified web-based Integrated Development Environment (IDE) that aggregates all SageMaker sub-services (JupyterLab, Code Editor, Canvas, Pipelines, Lineage Tracking) into collaborative shared spaces.
 
-🔥⭐⭐⭐ 
+🔥⭐⭐⭐
