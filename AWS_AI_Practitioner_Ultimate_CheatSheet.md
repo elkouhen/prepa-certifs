@@ -1,236 +1,186 @@
 # AWS AI Practitioner - Ultimate Cheat Sheet
 
-# Part 0 - AI / ML / GenAI Fundamentals (Domain 1 & 2)
+## How This Cheat Sheet Is Built (Methodology)
 
-## AI vs ML vs Deep Learning vs GenAI vs Agentic AI
-
-Definition: A hierarchy of nested concepts. AI (Artificial Intelligence) is the overall field; ML (Machine Learning) is a subset of AI where systems learn from data; Deep Learning is a subset of ML based on multi-layer neural networks; GenAI is a subset of Deep Learning capable of generating new content (text, image, audio...); Agentic AI adds a reasoning, planning, and autonomous action layer on top of a Foundation Model.
-
-Key Points:
-- AI ⊃ ML ⊃ Deep Learning ⊃ GenAI. Agentic AI = GenAI + ability to plan, act, and use tools autonomously.
-- Deep Neural Network: Stacking multiple hidden layers of "neurons" (weights, biases + non-linear activation functions) that learn abstract representations of data.
-- Computer Vision: AI discipline enabling systems to "understand" images and videos (**Amazon Rekognition**, **Amazon Textract**).
-- NLP (Natural Language Processing): AI discipline that processes human language (**Amazon Comprehend**, **Amazon Lex**, **Amazon Translate**).
-- Model vs Algorithm: The algorithm is the learning method (e.g., linear regression); the model is the trained output (learned weights) used for inference.
-- Training vs Inferencing: Training = learning phase using historical data; inferencing = using the trained model to make predictions on new data.
-- Bias / Fairness / Fit: 
-  * Bias = systematic error; Fairness = absence of discrimination.
-  * Underfitting = model is too simple, performs poorly on both training and test data.
-  * Overfitting = model is too complex, memorizes training data, performs poorly on new test data (failed generalization).
-
-Mnemonics: AI = the largest Russian doll, ML/DL/GenAI/Agentic = increasingly specific dolls inside.
-
-🔥⭐⭐⭐⭐⭐
+- **Rule 1 - Scope:** Each section covers one AWS service (or a key feature of Amazon Bedrock / Amazon SageMaker) that has a dedicated official AWS FAQ page, listed in **Reference FAQs** at the end of this document.
+- **Rule 2 - Order:** Services are ordered to follow a typical AI/ML pipeline: **Part 1** (pre-built AI services that consume data) -> **Part 2** (Generative AI via Amazon Bedrock) -> **Part 3** (custom ML via Amazon SageMaker, from data prep to monitoring).
+- **Rule 3 - Entry structure:** Each entry follows the same structure:
+  - **Definition** - what the service is.
+  - **Purpose** - why/when you would use it.
+  - **Typical use case** - one concrete example.
+  - **Not to be confused with** - closest service it is often mixed up with (only when relevant).
+  - **🔥⭐** rating - estimated exam importance, from 1 to 5 stars.
 
 ---
 
-## ML Learning Types (Supervised / Unsupervised / Reinforcement)
+# Part 1 - AWS Managed AI Services (Pre-built AI)
 
-Definition: Three main families of machine learning model training methods.
+## Amazon Textract
 
-Key Points:
-- Supervised Learning: The model learns from **labeled data** (input + known target output). Typical tasks: Classification (discrete categories) and Regression (continuous numerical values).
-- Unsupervised Learning: The model learns patterns from **unlabeled data**. Typical tasks: Clustering (grouping similar items), Anomaly Detection, Dimensionality Reduction.
-- Reinforcement Learning (RL): An agent learns by trial and error by interacting with an **environment**, taking **actions**, and maximizing a cumulative **reward**. 
-- RLHF (Reinforcement Learning from Human Feedback): A critical post-training alignment method used to steer LLMs toward human preferences, reducing toxicity and hallucinations.
+Definition: An OCR and document-understanding service that extracts text, tables, forms, and structured data from scanned documents and images.
 
-Technique Selection Examples:
-- Regression: Predicting house prices, stock values, or temperatures (continuous values).
-- Classification: Spam detection, customer churn prediction, or image categorization (discrete classes).
-- Clustering: Customer segmentation by behavior without predefined groups.
+Purpose: Turn unstructured documents (PDFs, scans, photos) into structured, queryable data without building a custom OCR model.
 
-Mnemonics: Supervised = with a teacher (labels); Unsupervised = without a teacher (hidden patterns); Reinforcement = trial and error with rewards.
+Typical use case: Automatically extract line items, dates, and totals from scanned invoices into a database.
+
+Key points:
+- Analyze Document: extracts raw text, key-value pairs (forms), and tables.
+- Analyze Expense: purpose-built for receipts and invoices (vendor, total, line items).
+- Analyze ID: extracts data from driver's licenses and passports.
 
 🔥⭐⭐⭐⭐
 
 ---
 
-## Data Types and Inference Types
+## Amazon Comprehend
 
-Definition: Core concepts regarding data formats used in ML and execution modes for predictions.
+Definition: An NLP service that uses ML to extract insights from text, including sentiment, entities, key phrases, language, syntax, and PII.
 
-Data Types:
-- Labeled vs Unlabeled: Data with or without known answers/targets.
-- Structured vs Unstructured: Tabular/relational databases vs free text, images, audio, and video.
-- Tabular: Rows and columns (CSV, SQL tables).
-- Time-series: Timestamped data points ordered sequentially over time.
+Purpose: Analyze unstructured text to understand sentiment, topics, and entities without training a custom NLP model.
 
-Inference Modes (Conceptual Level):
-- Real-time (Synchronous): Immediate response with low latency (e.g., e-commerce recommendation, chatbot).
-- Streaming: A real-time subcategory vital for GenAI where tokens are returned one by one as they are generated.
-- Asynchronous: Used for large or heavy workloads. Requests are placed in a queue, processed sequentially, and notifications are sent when complete (often via S3/SNS).
-- Batch: High-volume processing executed in scheduled lots, completely decoupled from real-time constraints.
+Typical use case: Detect negative sentiment and flag PII in customer support emails.
+
+Key points:
+- Built-in capabilities: sentiment analysis, entity recognition, key phrase extraction, language detection, and PII detection/redaction.
+- Comprehend Custom: train custom classifiers and entity recognizers on your own labeled data.
+- Comprehend Medical: a specialized variant for extracting medical conditions, medications, and dosages from clinical text.
+
+🔥⭐⭐⭐⭐
+
+---
+
+## Amazon Transcribe
+
+Definition: An automatic speech recognition (ASR) service that converts audio and video into text.
+
+Purpose: Generate accurate transcripts from speech for analysis, search, subtitling, or accessibility.
+
+Typical use case: Transcribe recorded call-center conversations, then feed the text into Amazon Comprehend for sentiment analysis.
+
+Key points:
+- Supports custom vocabularies and language models to improve accuracy on domain-specific terms (product names, jargon).
+- Can automatically identify and redact PII (e.g., credit card numbers) in transcripts.
+- Transcribe Medical: a specialized variant for clinical documentation.
+- Supports both real-time streaming transcription and asynchronous batch jobs.
 
 🔥⭐⭐⭐
 
 ---
 
-## When to Use AI/ML (and when NOT to use it)
+## Amazon Translate
 
-Definition: Identifying use cases where AI/ML adds clear business value versus scenarios where it is inappropriate.
+Definition: A neural machine translation service that translates text between languages in real time or in batch.
 
-When AI/ML Adds Value:
-- Human decision support (recommendations, scoring, insights).
-- Scaling repetitive tasks across massive data volumes.
-- Automation of tasks that would be too costly or slow to perform manually.
+Purpose: Localize content and enable multilingual applications without managing translation models.
 
-When AI/ML is NOT Appropriate:
-- When a **deterministic** and exact result is required instead of a probabilistic prediction (e.g., tax calculation, strict business rules -> use traditional code instead).
-- When the cost-benefit analysis is unfavorable (training/maintenance cost > business value).
-- When strict regulatory explainability is mandatory and a "black-box" model is unacceptable.
+Typical use case: Automatically translate product descriptions into multiple languages for a global e-commerce site.
 
-Trap: Traditional ML Model vs Foundation Model (FM)
-- Traditional ML Model: Trained for ONE specific task, highly explainable, cheaper to run, well-suited for rigid regulatory constraints.
-- FM: Generalist, multi-task capable via prompting, highly flexible but less explainable and potentially more expensive.
-
-🔥⭐⭐⭐⭐
-
----
-
-## AI/ML Lifecycle (Pipeline) and MLOps
-
-Definition: The sequence of steps required to transform a business need into a production model, and the operations (MLOps) needed to maintain it reliably over time.
-
-Typical Pipeline Steps:
-1. Data Collection
-2. Exploratory Data Analysis (EDA)
-3. Data Preparation (Cleaning, feature engineering)
-4. Model Training
-5. Model Evaluation (Metrics)
-6. Model Deployment (Inference)
-7. Monitoring and Retraining
-
-Model Performance Metrics:
-- **Classification:** Accuracy (overall correctness), Precision (minimizing false positives), Recall (minimizing false negatives), F1-Score (harmonic mean of precision and recall).
-- **Regression:** RMSE (Root Mean Squared Error), MAE (Mean Absolute Error).
-
-MLOps Core Concepts:
-- Reproducible experimentation, repeatable workflows, and scalable systems.
-- Continuous monitoring of deployed models to detect performance decay over time.
-
-Trap: Model Metric != Business Metric
-- Precision, Recall, and F1-Score measure the statistical quality of the model.
-- ROI, cost per transaction, and customer satisfaction score the actual business value.
-
-🔥⭐⭐⭐⭐
-
----
-
-## GenAI Core Concepts (Tokens, Embeddings, Transformers)
-
-Definition: Fundamental vocabulary required to understand LLMs and generative applications.
-
-Key Points:
-- Token: Unit of text (words, sub-words, or characters) processed by the model. Amazon Bedrock billing is calculated primarily on tokens (input + output).
-- Chunking: Breaking large documents into smaller segments before vectorization for RAG architectures.
-- Embeddings: High-dimensional numerical vectors capturing semantic meaning. Synonym concepts will yield vectors with a very close distance (e.g., cosine similarity).
-- Vector Database: Storage designed for embeddings to facilitate rapid semantic/similarity searches.
-- Transformer: The core neural network architecture utilizing the **Self-Attention** mechanism, which underpins modern LLMs (GPT, Claude, Llama, Amazon Nova).
-- Multimodal Model: A model capable of processing and generating multiple data modalities simultaneously (text + image + video).
-- Diffusion Model: Architecture traditionally used for image generation (e.g., Stable Diffusion) by progressively removing noise from an image.
-- Prompt Engineering: Formulating instructions given to a model to optimize output quality.
-
-Mnemonics: Token = Lego brick, Embedding = GPS coordinates of meaning, Transformer = Engine of the LLM.
-
-🔥⭐⭐⭐⭐⭐
-
----
-
-## Foundation Model Lifecycle
-
-Definition: The phases an FM undergoes from data assembly to production deployment.
-
-Steps:
-1. Data Selection (Assembling training data)
-2. Model Selection (Choosing architecture and size)
-3. Pre-training (Initial self-supervised learning on massive text corpora)
-4. Fine-tuning (Downstream specialization using labeled datasets)
-5. Evaluation (Quality and safety assessment)
-6. Deployment (Exposing the model via APIs)
-7. Feedback (Collecting interactions for iterative alignment)
+Key points:
+- Supports both real-time translation and asynchronous batch translation of large document sets.
+- Active Custom Translation (ACT): improves translation quality for a specific domain using your own parallel data, without training a full custom model.
 
 🔥⭐⭐⭐
 
 ---
 
-## Benefits and Limitations of GenAI
+## Amazon Lex
 
-Definition: Balancing the high-impact business benefits of GenAI against its inherent constraints.
+Definition: A service for building conversational interfaces (chatbots and voice bots) using the same deep learning technology as Alexa.
 
-Benefits:
-- Incredible adaptability (handles multiple distinct tasks via zero-shot/few-shot prompting).
-- Natural language interface (highly intuitive conversational systems).
-- Direct content generation (text, high-fidelity images, code synthesis).
+Purpose: Build conversational experiences that understand user intent and manage dialogue, without building natural-language understanding from scratch.
 
-Limitations / Risks:
-- Hallucinations: Generating false or unverified statements presented confidently as facts.
-- Interpretability: Extreme difficulty tracing exactly *why* a deep neural network generated a specific output.
-- Non-determinism: Identical inputs can generate different outputs depending on inference parameters (temperature, top-p).
+Typical use case: A banking chatbot that lets customers check balances or transfer funds by typing or speaking.
 
-Cost Trade-Offs in FM Customization (From cheapest/simplest to costliest/most complex):
-Prompt Engineering < Retrieval-Augmented Generation (RAG) < Fine-tuning < Continued Pre-training < Pre-training from scratch.
+Key points:
+- Bots are defined using intents, sample utterances, and slots (the pieces of information needed to fulfill an intent).
+- Integrates natively with Amazon Connect for contact-center voice bots, and with AWS Lambda to execute business logic.
 
-🔥⭐⭐⭐⭐⭐
+🔥⭐⭐⭐
 
 ---
 
-# Part 1 - Amazon Bedrock
+## Amazon Kendra
+
+Definition: An intelligent enterprise search service powered by ML, capable of answering natural-language questions across multiple connected data repositories.
+
+Purpose: Provide accurate, natural-language search and Q&A across internal documents and systems.
+
+Typical use case: Employees ask "What is our parental leave policy?" and get a precise answer pulled directly from internal HR documents.
+
+Key points:
+- Uses semantic search and natural-language understanding rather than simple keyword matching.
+- Provides 40+ built-in connectors (SharePoint, S3, Salesforce, Confluence, etc.) to index and search content across multiple data silos.
+
+Not to be confused with: Amazon Q Business (a full GenAI assistant built on top of enterprise data, vs. Kendra's search/retrieval engine).
+
+🔥⭐⭐⭐
+
+---
+
+## Amazon Personalize
+
+Definition: A managed service that builds real-time recommendation and personalization models using the same ML technology as Amazon.com.
+
+Purpose: Deliver individualized product, content, or offer recommendations without requiring in-house ML expertise.
+
+Typical use case: Show "recommended for you" products on an e-commerce homepage based on a user's browsing and purchase history.
+
+Key points:
+- Provides pre-built "recipes" for common use cases: product recommendations, related items, personalized re-ranking, and next-best-action.
+- Can return recommendations in real time via API, or generate them in batch.
+
+🔥⭐⭐⭐
+
+---
+
+## Amazon Forecast
+
+Definition: A managed time-series forecasting service that uses ML to predict future values (demand, inventory, resource needs) from historical data.
+
+Purpose: Generate accurate forecasts without building and maintaining custom time-series models.
+
+Typical use case: Predict next month's product demand per store to optimize inventory levels.
+
+Key points:
+- Exam trap: Amazon Forecast is no longer onboarding new customers — its forecasting capabilities are being consolidated into Amazon SageMaker Canvas.
+
+🔥⭐⭐
+
+---
+
+# Part 2 - Amazon Bedrock (Generative AI)
 
 ## Amazon Bedrock
+
 Definition: A fully managed, serverless service providing access to industry-leading foundation models (FMs) via a unified API (Anthropic, Meta, Mistral AI, Cohere, Stability AI, and the proprietary Amazon Nova/Titan families).
 
-Key Points:
-- No infrastructure management (serverless), usage-based pricing per token.
-- Enables easy switching and comparison of model endpoints (multi-LLM abstraction).
-- Serves as the substrate for advanced GenAI features: Knowledge Bases, Agents, Guardrails, Fine-tuning.
-- Security: Native isolation via IAM, KMS encryption, AWS PrivateLink (VPC), and full compliance tracking via CloudTrail.
+Purpose: Provide access to multiple FMs through a unified API, without managing infrastructure.
 
-Trap: Bedrock != SageMaker
-- Bedrock = Utilizing pre-trained FMs via simple APIs without underlying resource orchestration.
-- SageMaker = Building, training, and hosting customized or proprietary ML architectures from scratch with full infrastructure configuration.
+Typical use case: A company tests and compares Claude, Llama, and Titan for a chatbot without deploying GPU servers.
+
+Key points:
+- Pricing models: On-Demand (pay per token, no commitment) and Provisioned Throughput (purchased capacity units billed hourly, required for customized/fine-tuned models).
+- Security: integrates with IAM, KMS encryption, AWS PrivateLink (VPC access), and CloudTrail for full auditability.
+
+Not to be confused with: Amazon SageMaker (building, training, and hosting custom models with infrastructure managed by the customer).
 
 🔥⭐⭐⭐⭐⭐
 
 ---
 
 ## Bedrock Knowledge Bases
+
 Definition: A fully managed feature implementing end-to-end RAG (Retrieval-Augmented Generation). It automates document chunking, generates embeddings, stores them in a vector database, and fetches contextual snippets to ground the LLM's answers.
 
-Step-by-Step Workflow:
-1. Ingestion of data sources (e.g., files hosted on Amazon S3).
-2. Chunking (Splitting files into logical text segments).
-3. Embedding Generation (Vectorizing segments via an embedding model).
-4. Vector Storage (Indexing embeddings into an isolated vector store).
-5. Query Execution: User prompts -> Similarity search on vector store -> Context injected into prompt template -> Grounded response generated by LLM.
+Purpose: Ground an LLM's answers in company documents through fully managed end-to-end RAG.
 
-Supported Managed Vector Stores:
-- **Amazon OpenSearch Serverless** (Vector Search Collection)
-- **Amazon Aurora** (PostgreSQL with the `pgvector` extension)
-- **Amazon RDS for PostgreSQL**
-- **Amazon Neptune Analytics** (Specifically used for **GraphRAG** implementations)
+Typical use case: An internal assistant answers HR questions based on internal policies stored in S3.
 
-Trap: Knowledge Bases != Bedrock Data Automation
-- Knowledge Bases = Answering conversational queries using external documents (Semantic RAG search).
-- Bedrock Data Automation = Converting raw, unstructured assets explicitly into structured JSON payloads.
+Key points:
+- Workflow: ingest data from S3 -> chunk documents -> generate embeddings -> store in a vector database -> retrieve relevant chunks at query time to ground the LLM's response.
+- Supported vector stores: Amazon OpenSearch Serverless, Amazon Aurora (with pgvector), Amazon RDS for PostgreSQL, and Amazon Neptune Analytics (for GraphRAG).
 
 🔥⭐⭐⭐⭐⭐
-
----
-
-## Bedrock Data Automation (BDA)
-
-Definition: A specialized multi-modal feature designed to ingest mass unstructured assets and transform them into precise structured outputs (JSON) without writing parsing pipelines.
-
-Inputs:
-- PDF (Invoices, complex contracts, forms).
-- Images (Scans, layout designs, screenshots).
-- Audio (Call logs, transcriptions).
-- Video (Scene indexing, raw media assets).
-
-Example:
-A scanned invoice PDF -> Processed by BDA -> Structured JSON object `{"invoice_date": "2026-06-15", "amount_due": 1250.00}`.
-
-🔥⭐⭐⭐⭐
 
 ---
 
@@ -238,11 +188,15 @@ A scanned invoice PDF -> Processed by BDA -> Structured JSON object `{"invoice_d
 
 Definition: Orchestration components capable of multi-step reasoning, automatic task planning, calling external APIs (via AWS Lambda), and querying Knowledge Bases to execute complex business workflows autonomously.
 
-Components:
-- Instructions (Defining persona, guardrails, and overarching goals).
-- Action Groups (Set of REST APIs or Lambda functions the agent can execute).
-- Knowledge Bases (Connected document repositories for factual lookup).
-- Orchestrating Loop (The agent evaluates inputs, creates a task list, executes actions, tracks responses, and loops until completion).
+Purpose: Automate complex business workflows by orchestrating reasoning, API calls, and Knowledge Bases.
+
+Typical use case: A travel-booking agent that checks availability, books a flight, and sends a confirmation.
+
+Key points:
+- Core components: Instructions (persona/goals), Action Groups (APIs or Lambda functions the agent can call), and optional Knowledge Bases for factual lookup.
+- The agent autonomously plans a sequence of steps, executes them, observes the results, and loops until the task is complete.
+
+Not to be confused with: Bedrock Knowledge Bases (passive retrieval to ground answers, vs. Agents' active multi-step task execution).
 
 🔥⭐⭐⭐⭐⭐
 
@@ -252,243 +206,440 @@ Components:
 
 Definition: An independent evaluation layer applied to user prompts (inputs) and model responses (outputs) to filter unwanted content and enforce Responsible AI policies.
 
-Capabilities:
-- PII Redaction: Detecting and masking personally identifiable information (emails, SSNs, credit cards).
-- Toxicity Filtering: Blocking hate speech, sexual content, violence, and dangerous inputs.
-- Denied Topics: Explicitly setting custom filters for forbidden subjects (e.g., preventing a retail chatbot from giving medical advice).
-- Grounding & Relevance Checks: Verifying that model outputs are strictly grounded in the RAG context to prevent hallucinations.
+Purpose: Apply security and compliance (Responsible AI) policies to a model's inputs/outputs.
+
+Typical use case: Prevent a retail chatbot from giving medical advice and redact PII from its responses.
+
+Key points:
+- Configurable policy types: denied topics, content filters (hate, violence, etc.), PII redaction/masking, word filters, and grounding/relevance checks for RAG.
+- Applied independently to both the prompt (input) and the model's response (output).
 
 🔥⭐⭐⭐⭐⭐
 
 ---
 
-## Bedrock Playground
+## Bedrock Fine-tuning
 
-Definition: A graphical user interface within the AWS Console used to rapidly test, evaluate, and experiment with text, chat, and image FMs. Users can tweak inference parameters (Temperature, Top-P, Max Tokens) without writing code.
+Definition: A customization method that adapts a foundation model using labeled prompt-response pairs for a specific task.
 
-🔥⭐⭐
+Purpose: Improve a model's accuracy and consistency on a specific task using your own labeled examples.
+
+Typical use case: Adapt a model so it always answers in the JSON format expected by an internal application, using a labeled set of example prompts and responses.
+
+Key points:
+- Exam trap: any fine-tuned model must be served via Provisioned Throughput, not On-Demand.
+
+🔥⭐⭐⭐⭐
+
+---
+
+## Bedrock Continued Pre-training
+
+Definition: A customization method that further trains a base foundation model on large volumes of unlabeled domain-specific text.
+
+Purpose: Inject deep domain knowledge (vocabulary, style, facts) into a model before task-specific fine-tuning.
+
+Typical use case: Continue pre-training a model on a company's internal technical documentation so it better understands domain-specific terminology.
+
+Key points:
+- Uses large amounts of unlabeled data, unlike fine-tuning which requires labeled prompt-response pairs.
+- Exam trap: a continued pre-trained model must also be served via Provisioned Throughput, not On-Demand.
+
+🔥⭐⭐⭐
+
+---
+
+## Bedrock Custom Model Import
+
+Definition: A feature that brings externally trained open-source models (e.g., Llama, Mistral) into Bedrock to be served through its unified API.
+
+Purpose: Run your own or third-party trained models within Bedrock's managed, serverless environment.
+
+Typical use case: Import a custom fine-tuned Llama model trained outside AWS and serve it through Bedrock's API alongside other foundation models.
+
+Key points:
+- Only supports specific open-source model architectures (e.g., Llama, Mistral, Mixtral, Flan-T5) - not arbitrary custom architectures.
+- Imported models are billed and scaled like other Bedrock models, with no infrastructure to manage.
+
+Not to be confused with: SageMaker JumpStart (deploying open-source models to a self-managed SageMaker endpoint, vs. importing them into Bedrock's serverless environment).
+
+🔥⭐⭐⭐
+
+---
+
+## Bedrock Model Distillation
+
+Definition: A customization method that trains a smaller "student" model to replicate the behavior of a larger "teacher" model, using the teacher's outputs as training data.
+
+Purpose: Reduce inference latency and cost while retaining much of a larger model's quality.
+
+Typical use case: Distill a large, expensive model into a smaller model that runs cheaper and faster for a high-volume, latency-sensitive application.
+
+Key points:
+- The teacher model's responses to a set of prompts become the training data for the student model.
+- Trades some accuracy for significantly lower latency and cost compared to the teacher model.
+
+🔥⭐⭐⭐
 
 ---
 
 ## Bedrock Model Evaluation
 
-Definition: A managed interface to score and compare different FMs (or different versions of the same fine-tuned model) against target quality baselines.
+Definition: A managed interface to score and compare different FMs (or different versions of the same fine-tuned model) against target quality baselines, and more broadly to measure whether an FM-powered application reliably solves the business problem.
 
-Two Evaluation Methods:
-- Automatic Evaluation: Computes deterministic metrics (Accuracy, Robustness, Toxicity) using curated datasets.
-- Human Evaluation: Utilizes internal teams or AWS-managed expert teams to score subjective traits (Brand Alignment, Nuance, Creativity).
+Purpose: Objectively compare FMs or model versions, and verify that the application built on top of them meets the business need.
 
-🔥⭐⭐⭐⭐
+Typical use case: Compare two candidate models for document summarization using automatic metrics (ROUGE) and human evaluation, then track task completion rate once in production.
 
----
-
-## Bedrock Fine-tuning & Customization
-
-Definition: Methods used to alter a model's intrinsic knowledge or task execution capabilities using proprietary data.
-
-Key Modalities:
-- Fine-tuning: Adapting a model using labeled data (prompt-response pairs) to execute specific downstream tasks.
-- Continued Pre-training: Processing vast unlabeled domain text to infuse a base model (like Amazon Titan/Nova) with specialized industry terminology.
-- Custom Model Import: Registering external open-source models (Llama, Mistral architectures) trained outside AWS to serve them securely via Bedrock APIs.
-- Model Distillation: Training a smaller "student" model (e.g., Nova Micro) using outputs generated by a larger "teacher" model (e.g., Claude 3.5 Sonnet) to minimize inference latency and costs while keeping high quality.
-
-Trap: Provisioned Throughput Allocation
-- While standard models can be accessed via **On-Demand** pricing (pay-per-token), any customized model (Fine-tuned or Continued Pre-training) **must** be deployed using **Provisioned Throughput** (purchased capacity units billed hourly).
+Key points:
+- Automatic evaluation: computes metrics such as accuracy, robustness, and toxicity using built-in or custom datasets.
+- Human evaluation: uses internal teams or AWS-managed workers to score subjective qualities (tone, brand alignment, creativity).
+- Common metrics: ROUGE and BLEU (summarization/translation overlap), BERTScore (semantic similarity), and LLM-as-a-judge.
 
 🔥⭐⭐⭐⭐
 
 ---
 
-## Bedrock Marketplace
+## Amazon Nova Family
 
-Definition: An expanded model catalog offering access to specialized, emerging, or niche foundation models beyond the native serverless models. These models are automatically deployed onto managed SageMaker endpoints behind the scenes but remain accessible via Bedrock workflows.
+Definition: Amazon's family of multimodal foundation models available through Amazon Bedrock.
+
+Purpose: Provide a range of Amazon proprietary FMs covering text and media generation at different cost/performance levels.
+
+Typical use case: Use Nova Micro for a high-volume, low-cost use case, and Nova Premier for more complex tasks.
+
+Key points:
+- Text models scale from Nova Micro (fastest/cheapest) to Nova Lite, Nova Pro, and Nova Premier (most capable).
+- Creative/media models: Nova Canvas (image generation/editing) and Nova Reel (video generation).
 
 🔥⭐⭐
 
 ---
 
-## Bedrock AgentCore
+# Part 3 - Amazon SageMaker (Custom ML)
 
-Definition: An enterprise-grade runtime platform built to orchestrate and scale autonomous GenAI agents with persistent operational scaffolding.
+## Amazon SageMaker
 
-Core Modules:
-- AgentCore Identity: Manages authentication, cryptographic keys, and granular IAM permissions assigned specifically to the agent's execution identity.
-- Policy in AgentCore: Implements explicit operational guardrails and access control bounds for agent actions.
-- AgentCore Memory: Separates ephemeral short-term session context from long-term memory structures to remember user preferences across distinct sessions.
-- AgentCore Gateway: Serves as a secure egress layer for out-of-bounds API communication and web browsing requirements.
+Definition: A fully managed service that provides the tools to build, train, and deploy custom machine learning models across every stage of the ML lifecycle, from data preparation to production monitoring.
 
-🔥⭐⭐⭐
+Purpose: Give data scientists and ML engineers full control over building and operating custom ML models, beyond what pre-trained FMs or managed AI services offer.
 
----
+Typical use case: Build, train, and deploy a custom fraud-detection model tailored to a company's specific transaction data.
 
-## Prompt Engineering - Techniques and Vulnerabilities
+Key points:
+- Covers the full ML lifecycle: data preparation, build, train, tune, deploy, and monitor.
+- Unlike Bedrock, you choose and configure the underlying compute (instance types, clusters) for training and hosting.
 
-Definition: Formulating and structuring text inputs to optimize the output of an FM without modifying weights.
-
-Core Components:
-- Context: Background or reference information.
-- Instruction: The specific task requested.
-- Negative Prompt: Explicit instructions detailing what the model must *not* include or generate (vital for image generation).
-
-Advanced Techniques:
-- Zero-shot: Prompting without providing examples.
-- Few-shot: Including one or more sample inputs and expected outputs within the prompt to establish style or output schema constraints.
-- Chain-of-Thought (CoT): Injecting instructions like "think step by step" to force the model to output its logical reasoning before presenting the final answer (improves math and logic performance).
-- Bedrock Prompt Management: A centralized feature to create, version control, test, and deploy reusable prompt templates within applications.
-
-Security Risks:
-- Prompt Injection / Hijacking: An end-user crafts inputs that overwrite the system instructions, forcing the model to ignore its core safety rules.
-- Prompt Poisoning: Injecting malicious data into training sets or RAG documentation sources to alter model assumptions.
-- Jailbreaking: Using sophisticated adversarial prompts to bypass the safety and alignment filters of the model.
+Not to be confused with: Amazon Bedrock (consuming pre-trained FMs via API, with no infrastructure to manage).
 
 🔥⭐⭐⭐⭐⭐
 
 ---
 
-## Agentic AI Protocols & Frameworks
+## SageMaker Unified Studio
 
-Definition: Open specifications and software libraries used to scale agent-based systems and universal tool connectivity.
+Definition: A single, web-based interface that unifies SageMaker's ML tools with data engineering, data analytics (Athena, Redshift, EMR, Glue), and generative AI capabilities into one collaborative workspace, governed through Amazon DataZone.
 
-Key Terms:
-- Model Context Protocol (MCP): An open-standard protocol enabling LLMs to securely connect to external tools, data sources, and APIs through an abstraction layer (similar to a "universal USB port" for AI agents).
-- Multi-agent Patterns: System designs where distinct, specialized agents communicate (sequentially, hierarchically, or in parallel) to solve a broader problem.
-- Strands Agents: An AWS open-source SDK framework used to construct and orchestrate programmatic agents (Code-First approach).
-- Kiro: An agentic development IDE used to design, visualize, and generate applications via collaborative AI agents.
+Purpose: Give data and ML teams a single entry point to discover data, build pipelines, and develop ML/AI models without switching between multiple consoles.
 
-🔥⭐⭐⭐⭐
+Typical use case: A team uses a single project workspace to query data with Athena, build a data pipeline, and train a model with SageMaker Studio - all without leaving Unified Studio.
 
----
+Key points:
+- Built on Amazon DataZone for unified data governance, access control, and cataloging across projects.
+- Brings together previously separate consoles (SageMaker, Glue, Athena, Redshift, EMR, etc.) into one project-based experience.
 
-## Amazon Nova Familiy
-
-Definition: Amazon's generation of multi-modal foundation models available via Amazon Bedrock.
-
-Key Models:
-- Text Capabilities: Scaling from ultra-fast/low-cost models (**Nova Micro**, **Nova Lite**) up to highly intelligent variants (**Nova Pro**, **Nova Premier**).
-- Creative/Media Generation: **Nova Canvas** (image synthesis and editing) and **Nova Reel** (high-fidelity video generation).
+Not to be confused with: SageMaker Studio (the ML-focused IDE, now one of the tools accessible from within Unified Studio).
 
 🔥⭐⭐
 
 ---
-
-# Part 2 - Amazon Q Assistants & Analytics
-
-## Amazon Q Business
-
-Definition: A fully managed, secure generative AI assistant for enterprise employees. It connects natively to internal data connectors (S3, SharePoint, Salesforce, Confluence) to answer business questions, summarize internal policies, and create reports while strictly respecting pre-existing user access permissions.
-
-Key Point:
-- Provides turnkey enterprise RAG out-of-the-box without requiring manual database or chunking configuration.
-
-🔥⭐⭐⭐⭐⭐
-
-## Amazon Q Developer
-
-Definition: A generative AI assistant tailored for software engineers. It integrates into IDEs (VS Code, JetBrains) and the AWS Console to autocomplete code, explain complex algorithms, scan for security vulnerabilities, and debug infrastructure errors.
-
-Key Feature:
-- **Amazon Q Code Transformation** (AWS Transform): An automated workflow within Q Developer that modernizes legacy codebases automatically (e.g., upgrading Java 8 projects to Java 17, or transitioning .NET Framework to cross-platform .NET Core).
-
-🔥⭐⭐⭐⭐⭐
-
-## Amazon Q in QuickSight (Amazon Quick)
-
-Definition: Generative BI (Business Intelligence) capabilities embedded within QuickSight. It allows data analysts and business stakeholders to discover insights, compile executive summaries, and generate interactive dashboards using natural language prompts.
-
-🔥⭐⭐
-
----
-
-# Part 3 - Amazon SageMaker
-
-## SageMaker Canvas
-Definition: A visual, no-code interface that enables business analysts and non-developers to build highly accurate machine learning models (Classification, Regression, Time-series forecasting) simply by uploading data tables.
-
-🔥⭐⭐⭐⭐
-
-## SageMaker Autopilot
-Definition: An AutoML service that automates the entire ML pipeline: data cleaning, algorithm selection, hyperparameter tuning, and model ranking. It outputs transparent leaderboard tables alongside full execution notebooks so data scientists can inspect the generated code.
-
-🔥⭐⭐⭐⭐
-
-## SageMaker Data Wrangler
-Definition: A visual data preparation tool within SageMaker Studio that simplifies data ingestion, selection, and transformation. It features hundreds of built-in code-free step options (handling missing inputs, one-hot encoding, normalization).
-
-🔥⭐⭐⭐⭐
-
-## SageMaker Feature Store
-Definition: A managed repository to store, update, secure, and share ML features across data science teams. It maintains two structural components: an Online Store (low latency for real-time inference) and an Offline Store (high throughput storage in S3 for historical batch training).
-
-🔥⭐⭐⭐
-
-## SageMaker Training Jobs
-Definition: A fully managed compute abstraction to train ML models at scale. It automatically provisions transient CPU/GPU infrastructure clusters, runs the training script, exports the model artifacts to S3, and tears down the infrastructure to minimize costs.
-
-🔥⭐⭐⭐⭐
-
-## SageMaker HyperParameter Tuning (AMT)
-Definition: Also known as Automatic Model Tuning (AMT). It launches multiple parallel or sequential training jobs, dynamically varying hyperparameters (learning rates, layer counts) via optimization strategies (Bayesian, Random) to maximize a target validation metric.
-
-🔥⭐⭐⭐
-
-## SageMaker Experiments
-Definition: A tracking registry that automatically logs configuration parameters, operational metrics, input data versions, and artifact locations for every training run to ensure experiment reproducibility.
-
-🔥⭐⭐
-
-## SageMaker Pipelines
-Definition: A native CI/CD workflow engine tailored specifically for MLOps. It automates step dependencies from data ingestion, through training, model validation, registry approval, up to operational deployment.
-
-🔥⭐⭐⭐
-
-## SageMaker Model Registry
-Definition: A centralized version-controlled repository to catalog trained ML models. It records performance metadata, legal lineage, and handles explicit lifecycle state transitions (Pending, Approved, Rejected) before production rollouts.
-
-🔥⭐⭐⭐
-
-## SageMaker Endpoints & Inference Options
-
-Definition: Hosting mechanisms used to expose models for inferences depending on workload patterns.
-
-Inference Modalities:
-- Real-Time Inference: Persistent, always-on HTTPS endpoints optimized for low-latency millisecond responses under consistent traffic patterns.
-- Asynchronous Inference: Built-in queuing (via Amazon SQS) for heavy workloads or huge payloads with execution windows up to 15 minutes. Can scale compute instances down to **zero** when the queue is empty.
-- Serverless Inference: Managed endpoints built for intermittent or highly volatile traffic. Scales automatically from zero to meet instant request spikes, eliminating idle compute costs.
-- Batch Transform: Non-persistent jobs designed to run inferences over large datasets stored in S3. It spins up compute resources, appends batch predictions, writes outputs to S3, and immediately shuts down.
-
-🔥⭐⭐⭐⭐
-
-## SageMaker Clarify
-Definition: A comprehensive assessment tool used to evaluate dataset and model behavior. It detects statistical **bias** (both pre-training in datasets and post-training in predictions) and provides **explainability** insights by calculating feature importance metrics (SHAP values).
-
-> 💡 **Examen Tip:** Clarify is primarily utilized **during data prep, training, and pre-deployment validation** phases.
-
-🔥⭐⭐⭐⭐⭐
-
-## SageMaker Model Monitor
-Definition: A continuous validation service designed to audit the performance of real-time endpoints **live in production**. It monitors incoming payloads and alerts engineers (via CloudWatch) to architectural **Drift**:
-- Data Drift: Changing real-world input distributions relative to training data.
-- Concept Drift: Structural decay in model prediction accuracy over time.
-
-> 💡 **Examen Tip:** Model Monitor operates **exclusively post-deployment on production endpoints**.
-
-🔥⭐⭐⭐⭐
-
-## SageMaker Ground Truth
-Definition: A managed data labeling service that coordinates distributed human workforces (Internal teams, Amazon Mechanical Turk, or third-party vendors) alongside active learning ML models to label raw datasets.
-
-🔥⭐⭐⭐
-
-## SageMaker JumpStart
-Definition: An enterprise hub offering one-click access to hundreds of pre-trained open-source algorithms, pre-built solution templates, and popular foundation models that can be directly deployed onto managed SageMaker infrastructure.
-
-Trap: JumpStart != Bedrock
-- JumpStart = Deploying models explicitly onto hosted SageMaker compute infrastructure (giving full container and instance control, ideal for data science teams).
-- Bedrock = Accessing fully serverless FMs via consumption-based APIs without provisioning or configuring infrastructure.
-
-🔥⭐⭐⭐⭐⭐
 
 ## SageMaker Studio
-Definition: A unified web-based Integrated Development Environment (IDE) that aggregates all SageMaker sub-services (JupyterLab, Code Editor, Canvas, Pipelines, Lineage Tracking) into collaborative shared spaces.
+
+Definition: A unified, web-based ML IDE that integrates Jupyter notebooks, a code editor, pipelines, and experiment tracking in a single interface.
+
+Purpose: Provide a single environment for data scientists to build, train, debug, and deploy custom ML models.
+
+Typical use case: A data scientist writes code, runs experiments, and tracks results for a custom model entirely within Studio.
+
+Key points:
+- Integrates with SageMaker Pipelines for CI/CD-style ML workflows.
+- Studio Notebooks decouple compute from storage, allowing fast instance switching without losing notebook data.
 
 🔥⭐⭐⭐
+
+---
+
+## SageMaker Canvas
+
+Definition: A no-code, visual interface that lets business analysts build ML models for classification, regression, and time-series forecasting directly from tabular data.
+
+Purpose: Let non-technical users build and use ML models without writing code.
+
+Typical use case: A business analyst uploads a spreadsheet of historical sales and uses Canvas to forecast next quarter's demand without writing any code.
+
+Key points:
+- Automatically tests multiple algorithms and selects the best-performing one for the dataset.
+- Positioned by AWS as the no-code successor for time-series forecasting use cases previously served by Amazon Forecast.
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker JumpStart
+
+Definition: A model hub providing one-click access to pre-trained open-source foundation models and solution templates that can be fine-tuned and deployed to SageMaker endpoints.
+
+Purpose: Accelerate ML development by starting from pre-trained open-source models rather than training from scratch.
+
+Typical use case: A team deploys a pre-trained open-source model from JumpStart and fine-tunes it on their own data.
+
+Key points:
+- Models are deployed to customer-managed SageMaker endpoints (you control the infrastructure), unlike Bedrock's serverless API access.
+- Covers NLP, vision, and tabular model templates, not just generative AI.
+
+Not to be confused with: Bedrock Custom Model Import (importing an open-source model into Bedrock's serverless environment, vs. deploying it to a self-managed SageMaker endpoint).
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Ground Truth
+
+Definition: A data labeling service that combines human labelers (in-house teams, Amazon Mechanical Turk, or third-party vendors) with active learning to efficiently generate high-quality labeled datasets.
+
+Purpose: Produce accurately labeled training data at scale.
+
+Typical use case: Label thousands of images for an object-detection model using a mix of automated labeling and human review.
+
+Key points:
+- Active learning automatically labels "easy" examples and routes only ambiguous ones to human reviewers, reducing labeling cost and time.
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Data Wrangler
+
+Definition: A visual data preparation tool offering hundreds of built-in, no-code transformations (imputation, encoding, normalization) for cleaning and feature engineering.
+
+Purpose: Quickly clean, transform, and visualize data before training, without writing custom code.
+
+Typical use case: A data scientist normalizes numerical features and one-hot encodes categorical columns in a few clicks before exporting the dataset to a training pipeline.
+
+Key points:
+- Integrates with Feature Store and SageMaker Pipelines to operationalize and reuse transformations.
+
+🔥⭐⭐
+
+---
+
+## SageMaker Feature Store
+
+Definition: A centralized repository for storing, sharing, and serving ML features, with an Online Store (low-latency real-time lookups) and an Offline Store (S3-based, for training and batch use).
+
+Purpose: Ensure consistency of features between training and inference, and enable feature reuse across teams and models.
+
+Typical use case: A fraud-detection model retrieves the latest customer transaction features from the Online Store at inference time, while the same features are used historically from the Offline Store for training.
+
+Key points:
+- Prevents training/serving skew by ensuring the same feature definitions are used for both training and inference.
+- The Offline Store is backed by S3 and integrates with data lakes and analytics tools.
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Training Jobs
+
+Definition: A managed mechanism that provisions compute, runs a training script on a chosen dataset, writes the resulting model artifacts to S3, and tears down the infrastructure afterward.
+
+Purpose: Train custom models on managed, on-demand infrastructure without managing servers.
+
+Typical use case: Submit a training job that spins up GPU instances, trains a model on data from S3, and stops automatically once training completes.
+
+Key points:
+- You pay only for the training duration; supports built-in algorithms, custom containers (BYOC), and popular frameworks (PyTorch, TensorFlow, etc.).
+
+🔥⭐⭐⭐⭐
+
+---
+
+## SageMaker HyperPod
+
+Definition: A purpose-built, persistent and self-healing compute cluster service for large-scale distributed training of foundation models.
+
+Purpose: Reduce training time and operational overhead for very large models trained over weeks or months.
+
+Typical use case: A company trains a multi-billion-parameter foundation model across hundreds of GPUs, with HyperPod automatically detecting and replacing failed nodes.
+
+Key points:
+- Automatically detects, repairs, and resumes training from the last checkpoint after hardware failures, minimizing lost training time.
+- Targeted at large-scale, long-running distributed training jobs rather than typical single-job training.
+
+🔥⭐⭐
+
+---
+
+## SageMaker Automatic Model Tuning (AMT)
+
+Definition: A managed hyperparameter optimization feature that automatically searches the hyperparameter space (e.g., via Bayesian optimization) to find the configuration that maximizes a target metric.
+
+Purpose: Automate the search for optimal hyperparameters, improving model performance without manual trial and error.
+
+Typical use case: AMT runs many training jobs with different learning rates and batch sizes to find the combination that minimizes validation loss.
+
+Key points:
+- You define the hyperparameter ranges and an objective metric to optimize (e.g., validation accuracy or loss).
+- Supports multiple search strategies: random, Bayesian optimization, and hyperband.
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Clarify
+
+Definition: A tool that detects statistical bias in datasets (pre-training) and model predictions (post-training), and explains individual predictions using SHAP values.
+
+Purpose: Evaluate model fairness and provide explainability for predictions.
+
+Typical use case: Use Clarify to check whether a hiring model shows bias across demographic groups and explain why a specific candidate received a given score.
+
+Key points:
+- Pre-training bias metrics examine the dataset itself (e.g., class imbalance across groups); post-training metrics examine model predictions.
+- Uses SHAP (SHapley Additive exPlanations) values to attribute a prediction to individual input features.
+
+🔥⭐⭐⭐⭐
+
+---
+
+## SageMaker Model Cards
+
+Definition: A feature for documenting essential model information - intended use, training data, performance metrics, and risk considerations - in a centralized, structured format.
+
+Purpose: Support governance, audit, and responsible-AI documentation requirements.
+
+Typical use case: Document a model's intended use and known limitations in a Model Card before it goes through internal review.
+
+Key points:
+- Can auto-populate fields such as training job details and evaluation metrics directly from SageMaker.
+- Supports both AWS-trained models and models trained outside SageMaker (imported documentation).
+
+🔥⭐⭐
+
+---
+
+## SageMaker Model Registry
+
+Definition: A catalog for versioning trained models and managing their approval status through deployment stages (e.g., Pending -> Approved -> Deployed).
+
+Purpose: Track model versions and control promotion to production through an approval workflow.
+
+Typical use case: A new model version is registered, reviewed, approved by a model risk team, and then deployed to a production endpoint.
+
+Key points:
+- Groups related model versions into "model groups," making it easy to track lineage across iterations.
+- Approval status can trigger downstream automation (e.g., CI/CD pipelines that deploy approved models).
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Real-Time Inference
+
+Definition: A persistent, always-on hosted endpoint that returns predictions synchronously with low latency.
+
+Purpose: Serve models that require immediate, interactive predictions.
+
+Typical use case: Power a live fraud-check API call that must return a decision within milliseconds during checkout.
+
+Key points:
+- The endpoint runs continuously, so you pay for the underlying instances even when idle.
+- Supports auto-scaling and multi-model/multi-container endpoints to serve several models behind one endpoint.
+
+Not to be confused with: Amazon Bedrock (serverless inference for foundation models via managed APIs, vs. hosting your own model on a dedicated endpoint).
+
+🔥⭐⭐⭐⭐
+
+---
+
+## SageMaker Asynchronous Inference
+
+Definition: A hosting option that queues incoming requests with large payloads and processes them in the background, scaling the endpoint down to zero when idle.
+
+Purpose: Handle large payloads or long-running inference without keeping an endpoint running continuously.
+
+Typical use case: Process large video or document files submitted for inference, with results delivered once processing completes.
+
+Key points:
+- Supports payloads up to 1 GB and processing times of up to one hour, far beyond real-time endpoint limits.
+- Results are written to S3 and can trigger notifications (via Amazon SNS) when complete.
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Serverless Inference
+
+Definition: A hosting option that automatically provisions, scales, and turns off compute capacity based on traffic, scaling to zero when there are no requests.
+
+Purpose: Serve models with intermittent or unpredictable traffic without managing or paying for idle infrastructure.
+
+Typical use case: Host a model used only occasionally by an internal tool, avoiding the cost of an always-on endpoint.
+
+Key points:
+- Cold starts add latency after idle periods, making it unsuitable for strict low-latency requirements.
+- You pay only for the compute used to process requests, not for idle capacity.
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Batch Transform
+
+Definition: A hosting option that spins up temporary resources to run inference on an entire dataset stored in S3, then shuts the resources down once done.
+
+Purpose: Get predictions for a large dataset all at once, without needing a persistent endpoint.
+
+Typical use case: Run a nightly job that scores a full dataset of customer records stored in S3 and writes the predictions back to S3.
+
+Key points:
+- No persistent endpoint is created or billed - compute exists only for the duration of the job.
+- Well suited for scenarios where predictions are not needed in real time (e.g., periodic scoring).
+
+🔥⭐⭐⭐
+
+---
+
+## SageMaker Model Monitor
+
+Definition: A continuous validation service designed to audit the performance of real-time endpoints **live in production**. It monitors incoming payloads and alerts engineers (via CloudWatch) to operational drift (Data Drift and Concept Drift).
+
+Purpose: Continuously audit production endpoints for data drift and concept drift.
+
+Typical use case: Get a CloudWatch alert when the input data distribution of a production model starts diverging from the training data.
+
+Key points:
+- Data Drift: the statistical distribution of input data diverges from the data the model was trained on.
+- Concept Drift: the relationship between inputs and outputs changes over time, degrading prediction accuracy.
+- Operates exclusively on real-time production endpoints, not on training or batch jobs.
+
+🔥⭐⭐⭐⭐
+
+---
+
+# Reference FAQs
+
+- [Amazon Bedrock FAQs](https://aws.amazon.com/bedrock/faqs/)
+- [Amazon SageMaker FAQs](https://aws.amazon.com/sagemaker/faqs/)
+- [Amazon SageMaker AI FAQs](https://aws.amazon.com/sagemaker/ai/faqs/)
+- [Amazon Comprehend FAQs](https://aws.amazon.com/comprehend/faqs/)
+- [Amazon Textract FAQs](https://aws.amazon.com/textract/faqs/)
+- [Amazon Transcribe FAQs](https://aws.amazon.com/transcribe/faqs/)
+- [Amazon Translate FAQs](https://aws.amazon.com/translate/faqs/)
+- [Amazon Lex FAQs](https://aws.amazon.com/lex/faqs/)
+- [Amazon Personalize FAQs](https://aws.amazon.com/personalize/faqs/)
+- [Amazon Kendra FAQs](https://aws.amazon.com/kendra/faqs/)
+- [Amazon Forecast](https://aws.amazon.com/forecast/)
+- [AWS Data FAQs](https://aws.amazon.com/data/#faqs)
+- [AWS](https://aws.amazon.com/)
