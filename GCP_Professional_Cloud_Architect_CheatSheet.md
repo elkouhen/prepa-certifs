@@ -1,613 +1,2013 @@
 # GCP Professional Cloud Architect - Ultimate Cheat Sheet
 
-Légende: 🔥⭐ = fréquence/importance estimée à l'examen (1 à 5 étoiles).
-Comme tu connais AWS, chaque section indique l'équivalence AWS approximative (≈) - utile pour mapper rapidement les concepts, mais attention aux différences de détail (souvent le piège de l'examen).
+## How This Cheat Sheet Is Built (Methodology)
+
+This guide is an English, exam-focused reference for the Google Cloud Professional Cloud Architect exam. It uses one service or one exam-critical feature per section, preserves AWS comparison context only when it helps avoid common traps, and adds major services that commonly appear in PCA case studies.
 
 ---
 
-# Partie 1 - Hiérarchie des ressources & IAM
+## Scope and Ordering Rules
 
-## Hiérarchie des ressources GCP
+**Rule 1 - Scope (one service = one section)**  
+Each section covers exactly one Google Cloud service or one key exam-critical feature. Grouped comparisons from older versions have been split into separate entries when the exam requires choosing between services.
 
-Définition: Organisation -> Folders (dossiers, optionnels, imbricables) -> Projects -> Resources. Les politiques IAM et Org Policies s'appliquent par héritage descendant (un projet hérite des policies de ses folders et de l'organisation).
-
-Points clés:
-- Project : unité de base de facturation, quotas et regroupement de ressources. Possède un Project ID (unique globalement, immuable), un Project Name et un Project Number.
-- Folders : permettent de regrouper des projets par équipe/environnement/BU et d'appliquer des policies différenciées.
-- Organization : nœud racine, lié à un domaine Google Workspace/Cloud Identity.
-
-≈ AWS Organizations (Org -> OU -> Account), mais en GCP les "comptes" sont remplacés par des "projects" qui sont plus légers à créer (souvent 1 projet par environnement/service).
-
-🔥⭐⭐⭐⭐⭐
+**Rule 2 - Order (logical architecture pipeline)**  
+Services are ordered from resource hierarchy and identity, through networking and compute, then storage/data, migration, security, operations, DevOps, API management, and cost/governance.
 
 ---
 
-## IAM - rôles et bindings
+## Mandatory Structure for Every Entry
 
-Définition: IAM GCP attribue des "rôles" (ensembles de permissions) à des "membres" (utilisateurs, groupes, service accounts, domaines) sur une ressource (politique = liste de bindings membre<->rôle).
+Every entry uses exactly this structure and order:
 
-Types de rôles:
-- Basic roles (Owner, Editor, Viewer) : très larges, à éviter en prod (legacy).
-- Predefined roles : granulaires, gérés par Google, alignés sur un service (ex: roles/storage.objectViewer).
-- Custom roles : permissions sur mesure assemblées par l'utilisateur, au niveau projet ou organisation.
+### [Service name]
 
-Piège: IAM est additif uniquement (pas de "deny" explicite par défaut) - pour bloquer explicitement, utiliser les IAM Deny Policies ou les Org Policies.
+#### Definition & Purpose
+2-3 sentences explaining what the service does, why it is used, common native integrations, and whether the deployment model is serverless, fully managed, or customer-managed/dedicated infrastructure.
 
-≈ AWS IAM Policies (mais sans policy "resource-based" généralisée comme S3 bucket policy - GCP utilise des bindings IAM directement sur la ressource).
+#### Exam Triggers
+Bullet list of keywords, exact phrases, or constraints in an exam question that point directly to this service.
 
-🔥⭐⭐⭐⭐⭐
+#### Not to be confused with (MANDATORY)
+Closest confusing service plus the decision rule:
+
+▎ Choose [this service] if ... / Choose [other service] if ...
+
+#### Security & FAQ Insights
+- Critical security patterns: IAM, encryption, private connectivity, logging, compliance, and data isolation.
+- FAQ/exam limitations: quotas, supported modes, region/global scope, non-transitivity, failover behavior, and pricing constraints.
+- Common exam traps linked to this service.
+
+#### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Estimated exam importance from 1 to 5 stars, with a one-line justification.
+
+---
+
+# Part 1 - Resource Hierarchy, Identity & Governance
+
+## Resource Manager
+
+### Definition & Purpose
+Resource Manager defines the Google Cloud hierarchy: organization, folders, projects, and resources. It integrates with IAM, Organization Policy, Cloud Billing, Cloud Asset Inventory, labels, tags, and quotas; deployment model is a fully managed control plane.
+
+### Exam Triggers
+- "organization folder project hierarchy"
+- "project ID project number"
+- "inherit IAM policies"
+- "one project per environment"
+- "quotas by project"
+
+### Not to be confused with (MANDATORY)
+AWS Organizations - Resource Manager projects are lighter-weight resource containers than AWS accounts, while AWS Organizations manages accounts and OUs.
+
+▎ Choose Resource Manager if you need to structure Google Cloud resources, projects, folders, labels, tags, or quotas / Choose AWS Organizations if the question is explicitly about AWS account/OUs rather than GCP projects/folders.
+
+### Security & FAQ Insights
+- IAM policies inherit downward from organization to folders to projects/resources.
+- Projects are the base unit for billing, API enablement, quotas, and many isolation boundaries.
+- Project IDs are globally unique and immutable after creation.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Cloud Identity
+
+### Definition & Purpose
+Cloud Identity provides managed users, groups, and directory services for organizations that do not use Google Workspace. It integrates with IAM, Google Groups, SAML/OIDC federation, device management, and admin controls; deployment model is fully managed identity directory.
+
+### Exam Triggers
+- "user directory without Google Workspace"
+- "central users and groups"
+- "Cloud Identity domain"
+- "workforce identity base"
+
+### Not to be confused with (MANDATORY)
+IAM - Cloud Identity manages identities and groups, while IAM grants roles to those identities on resources.
+
+▎ Choose Cloud Identity if you need to manage human identities/groups as the directory foundation / Choose IAM if you need to grant permissions to identities on Google Cloud resources.
+
+### Security & FAQ Insights
+- An organization resource is tied to a Cloud Identity or Google Workspace domain.
+- Use groups rather than individual users for scalable IAM.
+- Cloud Identity is about identity lifecycle, not resource authorization by itself.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Cloud IAM
+
+### Definition & Purpose
+IAM grants roles to principals on resources using allow policies and role bindings. It integrates with Resource Manager, service accounts, conditions, deny policies, Policy Troubleshooter, and Recommender; deployment model is a fully managed authorization control plane.
+
+### Exam Triggers
+- "predefined custom basic roles"
+- "least privilege"
+- "IAM bindings"
+- "conditional IAM"
+- "Policy Troubleshooter"
+
+### Not to be confused with (MANDATORY)
+Organization Policy - IAM grants who can do what, while Organization Policy constrains what configurations are allowed.
+
+▎ Choose Cloud IAM if you need to grant or analyze permissions for users, groups, service accounts, or domains / Choose Organization Policy if you need to restrict resource configuration choices such as allowed regions or external IPs.
+
+### Security & FAQ Insights
+- Basic roles are broad legacy roles and should be avoided in production.
+- IAM is additive unless IAM Deny Policies are used.
+- Use predefined roles before custom roles when possible.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
 ## Service Accounts
 
-Définition: Identité non-humaine utilisée par les applications/VM pour s'authentifier aux API GCP. Chaque ressource (VM, fonction...) peut "agir en tant que" (actAs) un service account, avec les permissions associées.
+### Definition & Purpose
+Service Accounts are non-human identities used by applications, VMs, GKE workloads, CI/CD systems, and services to call Google Cloud APIs. They integrate with IAM, Workload Identity Federation, Compute Engine attached identities, GKE Workload Identity, Cloud Run, and key management; deployment model is fully managed workload identity.
 
-Points clés:
-- Compte de service par défaut (Compute Engine default SA) : a souvent le rôle Editor par défaut -> mauvaise pratique, créer des SA dédiés avec permissions minimales.
-- Workload Identity Federation : permet à des identités externes (AWS, Azure, on-prem via OIDC) d'assumer un rôle GCP sans clé JSON statique - équivalent du AWS IAM Role assumable via OIDC.
-- Impersonation : un utilisateur/SA peut "endosser" temporairement un autre SA (rôle iam.serviceAccountTokenCreator) sans partager de clés.
-- Clés de SA (JSON) : à éviter au maximum (risque de fuite), préférer Workload Identity / Attached Service Accounts.
+### Exam Triggers
+- "application identity"
+- "attached service account"
+- "avoid JSON keys"
+- "serviceAccountTokenCreator"
+- "impersonation"
 
-≈ AWS IAM Role (assumé par un service) + Instance Profile.
+### Not to be confused with (MANDATORY)
+Cloud Identity users - Service Accounts are workload identities, while Cloud Identity users are human identities.
 
-🔥⭐⭐⭐⭐⭐
+▎ Choose Service Accounts if an application or workload needs to call Google Cloud APIs with least privilege / Choose Cloud Identity users if a human user or group needs login and workforce access.
 
----
+### Security & FAQ Insights
+- Avoid long-lived JSON keys; prefer attached service accounts, impersonation, or Workload Identity Federation.
+- The actAs permission controls who can attach or impersonate a service account.
+- Default service accounts often have overly broad permissions in legacy environments.
 
-## Organization Policies
-
-Définition: Contraintes (restrictions) appliquées au niveau organisation/folder/projet, qui limitent ce qui PEUT être configuré (ex: interdire la création d'IP externes, restreindre les régions autorisées, désactiver la création de clés de service account).
-
-≈ AWS SCP (Service Control Policies) - même logique de "garde-fou" descendant dans la hiérarchie.
-
-🔥⭐⭐⭐⭐
-
----
-
-# Partie 2 - Networking
-
-## VPC GCP - particularités
-
-Définition: Contrairement à AWS, un VPC GCP est une ressource GLOBALE (pas liée à une région) ; les subnets, eux, sont régionaux (et s'étendent sur toutes les zones de la région).
-
-Points clés:
-- Auto mode VPC : crée automatiquement un subnet par région (déconseillé en prod, peu de contrôle).
-- Custom mode VPC : l'utilisateur définit ses subnets région par région (best practice).
-- Firewall rules : appliquées au niveau du VPC (pas du subnet), basées sur des tags réseau ou service accounts, avec priorité et direction (ingress/egress). Règle implicite "deny all ingress" et "allow all egress" par défaut.
-- Routes : également globales au VPC.
-
-Piège: un VPC GCP peut couvrir plusieurs régions nativement sans peering ni Transit Gateway (contrairement à AWS où un VPC est régional).
-
-≈ AWS VPC, mais GCP VPC = global, AWS VPC = régional.
-
-🔥⭐⭐⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
-## Shared VPC vs VPC Peering vs Network Connectivity Center
+## Organization Policy Service
 
-- Shared VPC : un projet "host" possède le VPC et partage des subnets avec des projets "service" (les ressources des projets service utilisent le réseau du host, mais restent facturées/gérées séparément). Permet une gestion réseau centralisée tout en gardant l'isolation des projets applicatifs.
-- VPC Network Peering : connexion privée non-transitive entre 2 VPC (potentiellement de projets/organisations différents), pas de chevauchement de CIDR autorisé.
-- Network Connectivity Center : hub central pour interconnecter des réseaux (VPC, on-prem via VPN/Interconnect) de façon transitive.
+### Definition & Purpose
+Organization Policy enforces hierarchical constraints on resources, such as allowed regions, external IP restrictions, and service account key creation bans. It integrates with Resource Manager, folders, projects, IAM, and secure tags; deployment model is fully managed governance guardrails.
 
-≈ Shared VPC = AWS RAM (partage de subnets) ; Peering = AWS VPC Peering (même limitation de non-transitivité) ; Network Connectivity Center ≈ AWS Transit Gateway.
+### Exam Triggers
+- "restrict allowed regions"
+- "disable service account key creation"
+- "block external IPs"
+- "policy inherited from folder"
+- "govern resource configuration"
 
-🔥⭐⭐⭐⭐⭐
+### Not to be confused with (MANDATORY)
+Cloud IAM - Organization Policy constrains allowed configurations, while IAM controls who has permissions.
+
+▎ Choose Organization Policy Service if you need preventive configuration guardrails across projects or folders / Choose Cloud IAM if you need to grant or revoke access to principals.
+
+### Security & FAQ Insights
+- Policies inherit downward but can be overridden or merged depending on constraint type.
+- Common exam trap: IAM may allow an action but Org Policy can still block the resulting configuration.
+- Use tags for conditional governance on selected resources.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
-## Cloud Interconnect & Cloud VPN
+## IAM Deny Policies
 
-- Dedicated Interconnect : connexion physique directe entre le réseau on-prem et le réseau GCP (≈ AWS Direct Connect dédié), nécessite une présence dans un point de colocation Google.
-- Partner Interconnect : connexion via un fournisseur partenaire, pour des débits plus faibles ou sans présence en colocation (≈ AWS DX via partenaire).
-- Cloud VPN : tunnel IPSec chiffré via internet. HA VPN (2 interfaces, SLA 99.99%) recommandé vs Classic VPN (déprécié).
-- Cross-Cloud Interconnect : connectivité dédiée directe entre GCP et d'autres clouds (AWS, Azure...).
+### Definition & Purpose
+IAM Deny Policies explicitly deny permissions for principals and override allow policies in supported scenarios. They integrate with IAM and Resource Manager hierarchy; deployment model is fully managed authorization guardrails.
 
-≈ AWS Direct Connect (Dedicated/Partner Interconnect) + Site-to-Site VPN (Cloud VPN).
+### Exam Triggers
+- "explicit deny in GCP"
+- "block permission even if allowed"
+- "deny policy"
+- "exception principal"
 
-🔥⭐⭐⭐⭐
+### Not to be confused with (MANDATORY)
+Organization Policy - IAM Deny blocks permissions/actions, while Organization Policy blocks resource configurations.
+
+▎ Choose IAM Deny Policies if you need an explicit permission deny that overrides IAM allows / Choose Organization Policy if you need to restrict configurations such as location, public IPs, or service usage.
+
+### Security & FAQ Insights
+- Deny policies are evaluated before allow policies for covered permissions.
+- Use carefully because they can block administrators if exceptions are not designed.
+- Not every permission/resource type has identical support, so validate service compatibility.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+# Part 2 - Networking, Edge & Private Connectivity
+
+## Virtual Private Cloud (VPC)
+
+### Definition & Purpose
+Google Cloud VPC is a global virtual network with regional subnets, global routes, firewall rules, and private connectivity controls. It integrates with Compute Engine, GKE, Cloud NAT, Cloud Router, load balancing, Private Service Connect, and VPC Flow Logs; deployment model is customer-designed networking on Google-managed infrastructure.
+
+### Exam Triggers
+- "global VPC regional subnets"
+- "auto mode vs custom mode"
+- "firewall rules at VPC level"
+- "routes are global"
+- "subnets span zones"
+
+### Not to be confused with (MANDATORY)
+AWS VPC - GCP VPCs are global with regional subnets, while AWS VPCs are regional.
+
+▎ Choose Virtual Private Cloud (VPC) if the scenario depends on GCP global VPC behavior, subnet design, routing, or firewall rules / Choose AWS VPC if the question compares with AWS regional VPC semantics or account-level VPCs.
+
+### Security & FAQ Insights
+- Custom mode VPC is preferred for production because it gives explicit subnet control.
+- Default ingress is denied and default egress is allowed unless changed.
+- Firewall rules can target network tags or service accounts.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Shared VPC
+
+### Definition & Purpose
+Shared VPC lets a host project share subnets with service projects while centralizing network administration. It integrates with Resource Manager, IAM, GKE, Compute Engine, Cloud SQL private connectivity, and firewall policies; deployment model is managed cross-project network sharing.
+
+### Exam Triggers
+- "host project service project"
+- "centralized networking team"
+- "shared subnets"
+- "separate billing per project"
+- "network isolation with shared VPC"
+
+### Not to be confused with (MANDATORY)
+VPC Network Peering - Shared VPC shares subnets from one host project, while Peering privately connects independent VPC networks.
+
+▎ Choose Shared VPC if you need centralized network administration with application resources in separate service projects / Choose VPC Network Peering if you need connectivity between two separate VPC networks without sharing subnets.
+
+### Security & FAQ Insights
+- Service projects use host project subnets but keep resource ownership and IAM separation.
+- Subnet IAM controls who can use shared subnets.
+- Common enterprise pattern for hub networking and project isolation.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## VPC Network Peering
+
+### Definition & Purpose
+VPC Network Peering privately connects two VPC networks across projects or organizations without public IPs. It integrates with VPC routes, DNS, and Private Services Access patterns; deployment model is managed private network peering.
+
+### Exam Triggers
+- "private connectivity between two VPCs"
+- "non-transitive peering"
+- "no overlapping CIDR"
+- "cross-project VPC connection"
+
+### Not to be confused with (MANDATORY)
+Network Connectivity Center - VPC Peering is non-transitive pairwise connectivity, while NCC is a hub for broader network connectivity patterns.
+
+▎ Choose VPC Network Peering if two non-overlapping VPC networks need private connectivity with simple routing / Choose Network Connectivity Center if many networks need hub-and-spoke or transitive connectivity.
+
+### Security & FAQ Insights
+- Peering is not transitive by default.
+- Overlapping IP ranges are not supported.
+- Export/import custom routes must be designed carefully.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Network Connectivity Center
+
+### Definition & Purpose
+Network Connectivity Center provides a hub-and-spoke model to connect VPCs, on-premises networks, and other cloud networks. It integrates with Cloud VPN, Cloud Interconnect, Router appliances, VPC spokes, and hybrid connectivity; deployment model is fully managed network connectivity hub.
+
+### Exam Triggers
+- "hub-and-spoke networking"
+- "transitive connectivity"
+- "hybrid network hub"
+- "connect many VPCs and on-prem"
+
+### Not to be confused with (MANDATORY)
+VPC Network Peering - NCC is a central connectivity hub, while peering is direct non-transitive VPC-to-VPC connectivity.
+
+▎ Choose Network Connectivity Center if you need scalable hub-and-spoke connectivity across many networks or hybrid spokes / Choose VPC Network Peering if you only need simple private connectivity between two VPCs.
+
+### Security & FAQ Insights
+- Used for enterprise hybrid and multi-cloud connectivity patterns.
+- Cloud Router/BGP design still matters for dynamic routing.
+- Do not use simple peering meshes when a hub architecture is required.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Cloud Interconnect
+
+### Definition & Purpose
+Cloud Interconnect provides dedicated or partner private connectivity from on-premises networks to Google Cloud. It integrates with Cloud Router, VLAN attachments, Dedicated Interconnect, Partner Interconnect, Cross-Cloud Interconnect, and HA VPN; deployment model is dedicated or partner-provided physical connectivity.
+
+### Exam Triggers
+- "Dedicated Interconnect"
+- "Partner Interconnect"
+- "Cross-Cloud Interconnect"
+- "private high bandwidth hybrid"
+- "Cloud Router BGP"
+
+### Not to be confused with (MANDATORY)
+Cloud VPN - Interconnect is private dedicated connectivity, while Cloud VPN is encrypted IPsec over the internet.
+
+▎ Choose Cloud Interconnect if you need private high-bandwidth low-latency hybrid connectivity / Choose Cloud VPN if you need quick encrypted internet-based connectivity or backup tunnels.
+
+### Security & FAQ Insights
+- Cloud Interconnect is not automatically encrypted; use MACsec where supported or VPN overlay if encryption is required.
+- Cloud Router exchanges routes dynamically with BGP.
+- Partner Interconnect is useful when you lack presence in a colocation facility.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Cloud VPN
+
+### Definition & Purpose
+Cloud VPN provides encrypted IPsec tunnels between Google Cloud and on-premises or other cloud networks. It integrates with HA VPN, Cloud Router, VPC, and hybrid routing; deployment model is fully managed VPN gateway with customer-managed peer gateway.
+
+### Exam Triggers
+- "IPsec VPN"
+- "HA VPN SLA 99.99"
+- "Classic VPN legacy"
+- "encrypted hybrid tunnel"
+- "BGP with Cloud Router"
+
+### Not to be confused with (MANDATORY)
+Cloud Interconnect - VPN is encrypted over the internet, while Interconnect is private dedicated connectivity.
+
+▎ Choose Cloud VPN if you need encrypted hybrid connectivity quickly or as a backup path / Choose Cloud Interconnect if you need predictable high-throughput private connectivity.
+
+### Security & FAQ Insights
+- HA VPN with two interfaces is preferred over Classic VPN.
+- Use Cloud Router/BGP for dynamic failover.
+- VPN can complement Interconnect for encryption or resilience.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
 
 ---
 
 ## Cloud Load Balancing
 
-Définition: Service de load balancing GLOBAL ou régional, basé sur l'Andromeda/Maglev (réseau logiciel défini de Google), avec une seule IP anycast pour distribuer le trafic mondialement.
+### Definition & Purpose
+Cloud Load Balancing provides global and regional load balancing for HTTP(S), TCP/SSL proxy, passthrough network, internal, and external workloads. It integrates with Cloud CDN, Cloud Armor, MIGs, GKE ingress, serverless NEGs, health checks, and anycast IPs; deployment model is fully managed load balancing.
 
-Types principaux:
-- Global external Application Load Balancer (HTTP/S, L7) : distribue le trafic mondialement vers le backend le plus proche, intégré à Cloud CDN et Cloud Armor.
-- Global external proxy Network Load Balancer (TCP/SSL, L4) : pour du trafic non-HTTP nécessitant une portée globale.
-- Regional external/internal Application Load Balancer : L7, régional.
-- Internal passthrough Network Load Balancer : L4, interne, conserve l'IP source (passthrough = pas de proxy).
+### Exam Triggers
+- "global external Application Load Balancer"
+- "single anycast IP"
+- "serverless NEG"
+- "passthrough vs proxy load balancer"
+- "GKE ingress creates load balancer"
 
-Piège: 
-- "Global" = une IP anycast unique servant plusieurs régions (≈ proche de AWS Global Accelerator + ALB combinés).
-- "Passthrough" (Network LB) vs "Proxy" (Application LB / proxy Network LB) - passthrough préserve l'adresse IP source du client jusqu'au backend.
+### Not to be confused with (MANDATORY)
+Cloud DNS - Load Balancing actively routes traffic to backends with health checks, while Cloud DNS provides name resolution and simpler DNS records.
 
-≈ ALB/NLB AWS, mais le LB "Global HTTP(S)" de GCP n'a pas d'équivalent direct unique côté AWS (combine ALB multi-région + Global Accelerator + CloudFront pour le edge).
+▎ Choose Cloud Load Balancing if you need managed traffic distribution, global anycast, health checks, or L7/L4 load balancing / Choose Cloud DNS if you only need DNS zones, records, or name resolution policies.
 
-🔥⭐⭐⭐⭐⭐
+### Security & FAQ Insights
+- Global external Application Load Balancer is a major PCA differentiator.
+- Passthrough Network Load Balancer preserves source IP; proxy load balancers terminate proxy connections.
+- Cloud Armor and Cloud CDN attach to supported external Application Load Balancers.
 
----
-
-## Cloud CDN, Cloud DNS, Cloud NAT, Cloud Armor
-
-- Cloud CDN : cache de contenu à la périphérie, s'active simplement sur un backend de Global external Application LB (≈ CloudFront, mais couplé au LB plutôt qu'indépendant).
-- Cloud DNS : service DNS managé, supporte les zones publiques et privées (≈ Route 53, sans toutes les routing policies avancées - pas de "latency-based" ou "geoproximity" natifs identiques).
-- Cloud NAT : NAT managé régional pour permettre à des VM sans IP externe d'accéder à internet en sortie uniquement (≈ AWS NAT Gateway).
-- Cloud Armor : WAF + protection DDoS au niveau des Global Load Balancers, règles basées sur IP/géolocalisation/L7 (≈ AWS WAF + Shield).
-
-🔥⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
-## Private Google Access & VPC Service Controls
+## Cloud CDN
 
-- Private Google Access : permet à des VM sans IP externe d'atteindre les API Google (Cloud Storage, BigQuery...) via leur IP interne/Private Service Connect.
-- Private Service Connect : connectivité privée vers des services gérés (Google ou tiers) sans passer par internet (≈ AWS PrivateLink).
-- VPC Service Controls : crée un "périmètre de sécurité" autour de ressources (projets) pour empêcher l'exfiltration de données même avec des credentials valides (ex: empêcher qu'un bucket GCS soit accessible depuis l'extérieur du périmètre, même par un compte autorisé).
+### Definition & Purpose
+Cloud CDN caches HTTP(S) content at Google edge locations through supported load balancer backends. It integrates with external Application Load Balancing, Cloud Storage backends, signed URLs/cookies, Cloud Armor, and logging; deployment model is fully managed edge caching.
 
-Piège: VPC Service Controls n'a pas d'équivalent direct simple en AWS - c'est une couche de défense contre l'exfiltration de données indépendante d'IAM.
+### Exam Triggers
+- "cache content at edge"
+- "enable CDN on load balancer backend"
+- "signed URLs"
+- "reduce latency for static assets"
 
-🔥⭐⭐⭐⭐
+### Not to be confused with (MANDATORY)
+Cloud Load Balancing - CDN caches content at the edge, while Load Balancing distributes traffic to backends.
+
+▎ Choose Cloud CDN if you need edge caching and reduced latency/cost for cacheable web content / Choose Cloud Load Balancing if you need traffic distribution even when caching is not relevant.
+
+### Security & FAQ Insights
+- Cloud CDN is enabled on compatible load balancer backend services/buckets.
+- Signed URLs and signed cookies support private cached content.
+- Not for arbitrary TCP/UDP traffic.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
 
 ---
 
-## Private Services Access (PSA)
+## Cloud DNS
 
-Définition: Mécanisme qui permet à des services managés Google (Cloud SQL, Memorystore, AlloyDB, Vertex AI...) hébergés dans un VPC propre à Google ("tenant project") d'être joints en IP privée depuis votre VPC, via du VPC Peering automatisé.
+### Definition & Purpose
+Cloud DNS provides managed public and private DNS zones, records, forwarding, peering, and DNS policies. It integrates with VPC private zones, hybrid forwarding, DNS peering, and Cloud Logging; deployment model is fully managed DNS.
 
-Fonctionnement:
-1. Vous réservez une plage d'adresses IP internes ("allocated range") dans votre VPC, dédiée aux services Google.
-2. Une connexion de service privé (`gcloud services vpc-peerings connect`) établit un peering automatique entre votre VPC et le VPC du service managé.
-3. L'instance Cloud SQL (par ex.) reçoit une IP privée dans cette plage, joignable depuis votre VPC sans IP publique ni Cloud SQL Auth Proxy.
+### Exam Triggers
+- "public private DNS zones"
+- "DNS forwarding to on-prem"
+- "DNS peering"
+- "split-horizon DNS"
+- "managed DNS"
 
-Points clés / pièges:
-- PSA repose sur du VPC Peering -> donc NON transitif : si votre VPC est connecté à un autre VPC (peering ou Shared VPC), ce 2e VPC NE PEUT PAS atteindre le service via cette connexion PSA (sauf "Export/Import custom routes" activé sur le peering, avec prudence).
-- La plage IP réservée doit être suffisamment grande et ne pas chevaucher vos subnets existants.
-- Une seule connexion PSA par VPC, mais elle peut servir plusieurs services/instances (toutes partagent la même plage allouée).
-- À ne pas confondre avec Private Service Connect (PSC) : PSA = peering automatisé pour les services Google "first-party" (Cloud SQL, etc.), PSC = endpoints privés (type PrivateLink) pour exposer/consommer des services (y compris tiers/cross-organisation) sans peering ni problème de chevauchement de CIDR.
+### Not to be confused with (MANDATORY)
+Cloud Load Balancing - Cloud DNS resolves names, while Load Balancing distributes application traffic and health checks.
 
-Mnémo: PSA = "peering pour parler à un service managé Google en IP privée" ; PSC = "PrivateLink-like, plus flexible, pas de peering".
+▎ Choose Cloud DNS if you need authoritative DNS, private DNS, hybrid forwarding, or split-horizon resolution / Choose Cloud Load Balancing if you need active traffic distribution to healthy backends.
 
-≈ AWS RDS dans un VPC géré par AWS mais joignable en privé... en réalité côté AWS, RDS est directement DANS votre VPC (pas de peering nécessaire) - PSA est donc une spécificité GCP liée au fait que les services managés vivent dans un VPC séparé appartenant à Google.
+### Security & FAQ Insights
+- Cloud DNS does not mirror every Route 53 advanced policy directly.
+- Private zones are visible only to authorized VPC networks.
+- DNS peering lets one VPC resolve another VPC project private zone.
 
-🔥⭐⭐⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Cloud NAT
+
+### Definition & Purpose
+Cloud NAT provides managed outbound internet access for private VM and GKE workloads without external IP addresses. It integrates with Cloud Router, VPC subnets, Compute Engine, GKE, logging, and regional NAT configuration; deployment model is fully managed regional NAT.
+
+### Exam Triggers
+- "VMs without external IP need internet egress"
+- "managed NAT"
+- "private GKE nodes outbound access"
+- "no inbound access"
+
+### Not to be confused with (MANDATORY)
+Cloud VPN - Cloud NAT is outbound internet address translation, while Cloud VPN is encrypted network-to-network connectivity.
+
+▎ Choose Cloud NAT if private resources need outbound internet access without public IPs / Choose Cloud VPN if two networks need encrypted private connectivity.
+
+### Security & FAQ Insights
+- Cloud NAT is regional and uses Cloud Router for control-plane configuration, not necessarily dynamic routes.
+- It does not allow inbound initiation from the internet.
+- Enable NAT logging for troubleshooting and audit.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Cloud Armor
+
+### Definition & Purpose
+Cloud Armor provides WAF and DDoS protections for applications behind supported Google Cloud load balancers. It integrates with external Application Load Balancers, edge security policies, reCAPTCHA Enterprise, preconfigured WAF rules, and logging; deployment model is fully managed edge security.
+
+### Exam Triggers
+- "WAF for load balancer"
+- "DDoS protection"
+- "SQL injection XSS rules"
+- "rate limiting"
+- "geo IP filtering"
+
+### Not to be confused with (MANDATORY)
+VPC Firewall Rules - Cloud Armor filters L7 edge traffic at load balancers, while VPC firewall rules filter network traffic to resources.
+
+▎ Choose Cloud Armor if you need web-layer protection or DDoS controls at the edge/load balancer / Choose VPC Firewall Rules if you need VPC-level ingress/egress controls for internal resources.
+
+### Security & FAQ Insights
+- Cloud Armor policies attach to supported external load balancer backends.
+- Preconfigured WAF rules cover common OWASP patterns.
+- Use with Cloud CDN/Load Balancing for internet-facing apps.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Private Service Connect
+
+### Definition & Purpose
+Private Service Connect provides private endpoints for consuming Google APIs, managed services, or producer services without exposing traffic to the public internet. It integrates with VPC, service attachments, endpoints, Google APIs, producer/consumer projects, and load balancing; deployment model is fully managed private service connectivity.
+
+### Exam Triggers
+- "PrivateLink-like endpoint"
+- "consume service privately"
+- "overlapping CIDR friendly"
+- "private endpoint to Google APIs"
+- "producer service attachment"
+
+### Not to be confused with (MANDATORY)
+Private Services Access - PSC uses endpoints/service attachments without peering, while PSA uses VPC peering to allocate private IPs for certain Google managed services.
+
+▎ Choose Private Service Connect if you need endpoint-based private access to Google APIs, managed services, or producer services without VPC peering / Choose Private Services Access if Cloud SQL/AlloyDB/Memorystore private IP connectivity requires allocated range peering semantics.
+
+### Security & FAQ Insights
+- PSC avoids some peering transitivity and overlapping CIDR issues.
+- It supports private access to Google APIs and producer services.
+- Producer/consumer IAM and endpoint controls matter in cross-project designs.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Private Google Access
+
+### Definition & Purpose
+Private Google Access lets VMs without external IPs reach Google APIs and services using internal/private routes. It integrates with VPC subnets, Cloud Storage, BigQuery, routing, restricted.googleapis.com, and Private Service Connect for Google APIs; deployment model is a VPC subnet/private access feature.
+
+### Exam Triggers
+- "VM without external IP calls Cloud Storage"
+- "private access to Google APIs"
+- "restricted.googleapis.com"
+- "no NAT for Google APIs"
+
+### Not to be confused with (MANDATORY)
+Cloud NAT - Private Google Access reaches Google APIs privately, while Cloud NAT provides outbound internet access to public endpoints.
+
+▎ Choose Private Google Access if private VMs need access to Google APIs such as Cloud Storage or BigQuery without external IPs / Choose Cloud NAT if private VMs need general outbound internet access beyond Google APIs.
+
+### Security & FAQ Insights
+- Enabled per subnet for VM-based access patterns.
+- Use restricted.googleapis.com with VPC Service Controls for stronger data exfiltration controls.
+- Serverless products may have different private access mechanisms.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## VPC Service Controls
+
+### Definition & Purpose
+VPC Service Controls creates security perimeters around supported Google Cloud resources to reduce data exfiltration risk even when credentials are valid. It integrates with Access Context Manager, Cloud Storage, BigQuery, restricted.googleapis.com, IAM, and audit logs; deployment model is fully managed data perimeter security.
+
+### Exam Triggers
+- "security perimeter"
+- "prevent data exfiltration"
+- "valid credentials but outside perimeter"
+- "restricted.googleapis.com"
+- "Access Context Manager"
+
+### Not to be confused with (MANDATORY)
+Cloud IAM - IAM decides who can access a resource, while VPC Service Controls restrict where access can come from and where data can move.
+
+▎ Choose VPC Service Controls if you need a data exfiltration perimeter around supported services/projects / Choose Cloud IAM if you only need identity-based allow/deny authorization.
+
+### Security & FAQ Insights
+- It is not a network firewall; it is a service perimeter control.
+- Dry-run mode helps test policies before enforcement.
+- Common exam trap: IAM may allow access but the perimeter still denies it.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Private Services Access
+
+### Definition & Purpose
+Private Services Access connects your VPC to Google-managed service producer networks using allocated IP ranges and service networking peering. It integrates with Cloud SQL private IP, AlloyDB, Memorystore, Vertex AI, VPC peering, and Service Networking API; deployment model is managed private connectivity via peering.
+
+### Exam Triggers
+- "Cloud SQL private IP"
+- "allocated IP range"
+- "service networking peering"
+- "managed service in Google tenant VPC"
+- "PSA not PSC"
+
+### Not to be confused with (MANDATORY)
+Private Service Connect - PSA is peering-based for first-party managed services, while PSC is endpoint/service-attachment based and more flexible.
+
+▎ Choose Private Services Access if a supported Google managed service needs a private IP allocated from your VPC range / Choose Private Service Connect if you need endpoint-based private consumption/exposure without VPC peering.
+
+### Security & FAQ Insights
+- PSA inherits VPC Peering non-transitivity constraints.
+- Plan allocated ranges carefully; too-small ranges cause future expansion problems.
+- A single private connection can serve multiple supported services in a VPC.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
 ## Serverless VPC Access
 
-Définition: Connecteur qui permet à des environnements serverless (Cloud Run, Cloud Functions, App Engine Standard) d'envoyer du trafic vers des ressources internes d'un VPC (ex: Cloud SQL via IP privée, VM internes, Memorystore) sans passer par une IP publique.
+### Definition & Purpose
+Serverless VPC Access connects serverless environments such as Cloud Run, Cloud Functions, and App Engine Standard to resources with internal VPC IPs. It integrates with VPC connectors, Cloud SQL private IP, Memorystore, Compute Engine, and serverless services; deployment model is managed connector infrastructure.
 
-Piège: sans ce connecteur, un service serverless ne peut atteindre une ressource qu'en IP publique (ou via PSA/PSC pour les services managés qui le supportent directement).
+### Exam Triggers
+- "Cloud Run access private VM"
+- "serverless to VPC internal IP"
+- "VPC connector"
+- "Cloud Functions private database access"
 
-≈ Lambda déployé "dans un VPC" (attachement ENI) côté AWS - en GCP, c'est un connecteur dédié séparé plutôt qu'une config "in-VPC" du service lui-même.
+### Not to be confused with (MANDATORY)
+Private Service Connect - Serverless VPC Access sends serverless egress into your VPC, while PSC provides private service endpoints.
 
-🔥⭐⭐⭐
+▎ Choose Serverless VPC Access if serverless workloads need to reach internal VPC resources / Choose Private Service Connect if clients need endpoint-based private access to managed or producer services.
 
----
+### Security & FAQ Insights
+- Connector sizing and region placement affect throughput and cost.
+- Cloud Run also supports direct VPC egress options in newer patterns.
+- Without a connector/direct egress, serverless cannot reach arbitrary internal VM IPs.
 
-## Network Tiers (Premium vs Standard)
-
-Définition: Niveau de réseau utilisé pour le trafic sortant vers internet et les IP externes:
-
-- Premium Tier (par défaut) : trafic acheminé sur le réseau privé mondial de Google (backbone) le plus longtemps possible -> meilleure performance/latence, légèrement plus cher.
-- Standard Tier : trafic acheminé comme un ISP classique (transite par l'internet public plus tôt) -> moins cher, performance/SLA moindres, et certaines fonctionnalités indisponibles (ex: pas de Global Load Balancing en Standard Tier - LB régional uniquement).
-
-🔥⭐⭐
-
----
-
-## Firewall : règles vs Hierarchical Firewall Policies vs Network Firewall Policies
-
-- Règles de pare-feu VPC (legacy) : attachées directement à un VPC, basées sur tags réseau ou comptes de service, priorité numérique (0-65535, plus petit = priorité plus haute).
-- Network Firewall Policies (régionales ou globales) : ressource de policy associable à un ou plusieurs VPC, règles organisées et réutilisables, supportent FQDN et Secure Tags.
-- Hierarchical Firewall Policies : appliquées au niveau Organization ou Folder, héritées par tous les VPC des projets sous-jacents -> permettent d'imposer des règles de sécurité globales (ex: bloquer certains ports) que les équipes projet ne peuvent pas outrepasser.
-
-≈ Hierarchical Firewall Policies n'a pas d'équivalent direct simple côté AWS (proche de l'usage de Network Firewall centralisé via Transit Gateway, mais appliqué au niveau organisationnel plutôt que réseau).
-
-🔥⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
 
 ---
 
-## VPC Flow Logs & Firewall Rules Logging
+## Firewall Policies and VPC Firewall Rules
 
-- VPC Flow Logs : capture les informations sur le trafic IP entrant/sortant des VM (échantillonnable), exportable vers Cloud Logging/BigQuery/Pub-Sub pour analyse réseau, troubleshooting de connectivité, audit de sécurité. ≈ AWS VPC Flow Logs.
-- Firewall Rules Logging : journalise les connexions évaluées par une règle de pare-feu spécifique (allow/deny), utile pour auditer quelles règles matchent réellement le trafic.
+### Definition & Purpose
+Google Cloud firewall controls include VPC firewall rules, global/regional network firewall policies, and hierarchical firewall policies. They integrate with VPC, secure tags, service accounts, folders/organizations, logging, and Network Security; deployment model is fully managed distributed firewall enforcement.
 
-🔥⭐⭐
+### Exam Triggers
+- "hierarchical firewall policy"
+- "network tags vs service accounts"
+- "priority number lower wins"
+- "organization-level firewall rule"
+- "secure tags"
 
----
+### Not to be confused with (MANDATORY)
+Cloud Armor - Firewall rules/policies filter VPC network traffic, while Cloud Armor protects HTTP/S apps at the load balancer edge.
 
-## Cloud DNS avancé : forwarding, peering, split-horizon
+▎ Choose Firewall Policies and VPC Firewall Rules if you need VPC or organization-level network access controls / Choose Cloud Armor if you need L7 WAF/DDoS controls for internet-facing load-balanced apps.
 
-- DNS Forwarding : transfère la résolution de certains domaines vers des serveurs DNS on-prem (et inversement, via des "inbound/outbound server policies") - essentiel pour l'intégration hybride.
-- DNS Peering : permet à un VPC de résoudre les enregistrements d'une zone privée appartenant à un AUTRE VPC/projet (ex: un Shared VPC host gère les zones, les projets service y font du peering DNS).
-- Split-Horizon DNS : même nom de domaine résolu différemment selon que la requête vient d'une zone privée (interne) ou publique (internet), via deux zones Cloud DNS distinctes portant le même nom.
+### Security & FAQ Insights
+- Lower priority numbers take precedence.
+- Hierarchical firewall policies enforce org/folder-level rules that projects cannot bypass.
+- Firewall Rules Logging shows which rules matched traffic.
 
-≈ Route 53 Resolver (forwarding rules + association VPC) et Route 53 Private Hosted Zones partagées entre VPC.
-
-🔥⭐⭐⭐
-
----
-
-# Partie 3 - Compute
-
-## Compute Engine - points avancés
-
-- Machine types : familles générales (E2, N2, N2D, C3), optimisées calcul (C2), mémoire (M-series), GPU (A2/G2).
-- Preemptible VM / Spot VM : instances jusqu'à 91% moins chères, pouvant être arrêtées par Google (Spot = pas de limite de 24h contrairement aux anciennes preemptible). ≈ AWS Spot Instances.
-- Managed Instance Groups (MIG) : groupe de VM identiques (depuis un template) avec autoscaling, auto-healing (health checks + recréation), mises à jour rolling/canary. ≈ AWS Auto Scaling Group.
-- Sole-Tenant Nodes : matériel physique dédié pour des contraintes de licence/conformité (≈ AWS Dedicated Hosts).
-- Custom Machine Types : choix indépendant du nombre de vCPU et de la quantité de RAM.
-- Committed Use Discounts (CUD) : engagement 1 ou 3 ans sur de la capacité de calcul/mémoire pour réduction tarifaire (≈ AWS Savings Plans/RI).
-
-🔥⭐⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
 
 ---
 
-## GKE (Google Kubernetes Engine)
+## VPC Flow Logs
 
-Définition: Kubernetes managé. Pour l'examen, retenir surtout:
+### Definition & Purpose
+VPC Flow Logs samples and records network flows for VM NICs and subnets for troubleshooting, forensics, and network analysis. It integrates with Cloud Logging, BigQuery, Pub/Sub, and Network Intelligence Center; deployment model is fully managed telemetry collection.
 
-- Autopilot vs Standard : Autopilot = mode entièrement géré (Google gère les nodes, sécurité, scaling - facturation par pod), Standard = l'utilisateur gère les node pools.
-- Node pools : groupes de nodes avec une config commune (machine type, taille...), un cluster peut avoir plusieurs node pools (ex: un pool GPU, un pool spot).
-- Workload Identity : permet à un Pod d'utiliser un Service Account GCP via un Kubernetes Service Account (sans clé JSON) - équivalent IRSA AWS (IAM Roles for Service Accounts).
-- Cluster régional vs zonal : un cluster régional réplique le control plane sur plusieurs zones pour la haute disponibilité.
+### Exam Triggers
+- "capture network flows"
+- "troubleshoot connectivity"
+- "export flow logs to BigQuery"
+- "audit traffic patterns"
 
-≈ AWS EKS, avec Autopilot ≈ Fargate pour EKS (sans gestion de node).
+### Not to be confused with (MANDATORY)
+Firewall Rules Logging - VPC Flow Logs records network flow metadata, while Firewall Rules Logging records connections evaluated by specific firewall rules.
 
-🔥⭐⭐⭐⭐
+▎ Choose VPC Flow Logs if you need broad network flow visibility for subnets or VM NICs / Choose Firewall Rules Logging if you need to know which firewall rule allowed or denied a connection.
 
----
+### Security & FAQ Insights
+- Flow logs are sampled and metadata-focused, not packet capture.
+- Exports to BigQuery support network analytics.
+- Enable only where useful to control log volume and cost.
 
-## Cloud Run, App Engine, Cloud Functions
-
-- Cloud Run : exécute des conteneurs serverless (scale-to-zero, scaling automatique selon les requêtes), facturé à l'usage réel (CPU/mémoire pendant le traitement de requêtes). ≈ AWS Fargate (serverless containers) + App Runner.
-- App Engine : PaaS historique, Standard (runtimes managés, scale-to-zero rapide, sandboxé) vs Flexible (conteneurs Docker sur VM managées, scaling plus lent). ≈ AWS Elastic Beanstalk.
-- Cloud Functions (2nd gen) : FaaS événementiel, basé sur Cloud Run en interne, déclenché par HTTP, Pub/Sub, Cloud Storage, Firestore... ≈ AWS Lambda.
-
-Piège: Cloud Functions 2nd gen tourne en fait sur l'infrastructure Cloud Run (limites/timeouts alignés).
-
-🔥⭐⭐⭐⭐
-
----
-
-## GKE Networking (souvent un piège de scénario)
-
-- VPC-native cluster (alias IP) vs routes-based (legacy) : VPC-native utilise des "alias IP ranges" pour les Pods et Services, ce qui les rend routables nativement dans le VPC (requis pour Private Service Connect, VPC Peering avec les Pods, etc.). À privilégier systématiquement (par défaut depuis un moment).
-- Private clusters : les nodes n'ont que des IP internes. Le control plane peut être accessible publiquement ou en privé (private endpoint), avec des "control plane authorized networks" pour restreindre l'accès `kubectl`.
-- GKE Ingress (Cloud Load Balancer) : un objet Ingress GKE provisionne automatiquement un Global external Application Load Balancer (≈ AWS Load Balancer Controller pour EKS, mais natif/automatique côté GKE).
-- Network Policies : règles de filtrage L3/L4 entre Pods (basées sur Calico/eBPF selon le mode), pour micro-segmentation interne au cluster.
-- Multi-cluster / Multi-Cluster Ingress (MCI) & Multi-Cluster Services (MCS) : exposent des services à travers plusieurs clusters/régions pour HA et déploiements globaux.
-
-🔥⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
 
 ---
 
-## Compute Engine - sécurité & matériel spécialisé
+# Part 3 - Compute, Containers & Serverless
 
-- Shielded VM : protection contre le rootkit/bootkit (Secure Boot, vTPM, Integrity Monitoring) - activable par défaut sur la plupart des images publiques.
-- Confidential VM : chiffre la mémoire en cours d'utilisation (memory encryption via AMD SEV), pour des données sensibles même pendant le traitement.
-- GPUs & TPUs : GPU attachables à des VM standards (ML, rendu, HPC) ; TPU = matériel propriétaire Google optimisé pour l'entraînement/inférence de modèles ML à grande échelle (≈ pas d'équivalent direct AWS - proche d'Inferentia/Trainium mais écosystème TensorFlow/JAX natif).
-- OS Login : gère l'accès SSH aux VM via IAM (au lieu de gérer des clés SSH par projet/instance) - active l'audit centralisé des connexions.
+## Compute Engine
 
-🔥⭐⭐
+### Definition & Purpose
+Compute Engine provides virtual machines, machine families, GPUs/TPUs attachments, disks, metadata, and purchasing options. It integrates with VPC, Persistent Disk, MIGs, service accounts, OS Login, Cloud Monitoring, and load balancers; deployment model is customer-managed VM compute on Google infrastructure.
 
----
+### Exam Triggers
+- "VM instances"
+- "machine types"
+- "Spot VMs"
+- "sole-tenant nodes"
+- "custom machine types"
 
-# Partie 4 - Stockage & Bases de données
+### Not to be confused with (MANDATORY)
+Cloud Run - Compute Engine provides VM/OS control, while Cloud Run runs containers serverlessly.
 
-## Cloud Storage - classes et fonctionnalités
+▎ Choose Compute Engine if you need full VM control, custom OS agents, GPUs, sole tenancy, or long-running servers / Choose Cloud Run if you need stateless containerized services with scale-to-zero and no server management.
 
-- Classes : Standard, Nearline (accès <1x/mois), Coldline (<1x/trimestre), Archive (<1x/an, restitution la plus lente).
-- Object Lifecycle Management : règles de transition/suppression automatique entre classes.
-- Autoclass : transition automatique des objets entre classes selon le pattern d'accès, sans définir de règles (≈ S3 Intelligent-Tiering).
-- Emplacement du bucket : Region, Dual-region, Multi-region (impact disponibilité/latence/coût/résidence des données).
-- Object Versioning, retention policies (Bucket Lock = équivalent S3 Object Lock pour conformité WORM).
-- Signed URLs : accès temporaire (≈ S3 Pre-signed URLs).
+### Security & FAQ Insights
+- Spot VMs are cheaper but can be preempted.
+- OS Login centralizes SSH access through IAM.
+- Shielded VM and Confidential VM improve boot integrity and memory protection.
 
-≈ Amazon S3, avec une grille tarifaire/nommage de classes différente (attention aux correspondances : Coldline ≈ Glacier Flexible, Archive ≈ Glacier Deep Archive).
-
-🔥⭐⭐⭐⭐⭐
-
----
-
-## Choisir la bonne base de données GCP
-
-Piège majeur de l'examen - bien différencier:
-
-- Cloud SQL : MySQL/PostgreSQL/SQL Server managés, relationnel, scaling vertical, réplicas en lecture régionaux/cross-région, HA via réplication synchrone (≈ Amazon RDS).
-- Cloud Spanner : base relationnelle distribuée mondialement, scaling horizontal ILLIMITÉ avec cohérence forte (CP du théorème CAP) et SQL complet - idéal pour des charges transactionnelles globales nécessitant cohérence forte (≈ pas d'équivalent direct AWS ; un peu comme Aurora Global mais avec cohérence forte + scaling horizontal natif).
-- Firestore : base NoSQL documentaire, mode "Native" (temps réel, mobile/web) - ≈ Amazon DynamoDB + sync temps réel type AppSync.
-- Bigtable : base NoSQL grande échelle (pétaoctets), faible latence, idéale pour séries temporelles/IoT/analytique à très haut débit (≈ Amazon DynamoDB pour la volumétrie, mais modèle "wide-column" type HBase/Cassandra).
-- BigQuery : data warehouse serverless, analytique SQL sur pétaoctets, séparation stockage/calcul, facturation par requête (scan) ou par capacité réservée (≈ Amazon Redshift Serverless / Redshift Spectrum).
-- Memorystore : Redis/Memcached managés (≈ ElastiCache).
-- AlloyDB : PostgreSQL haute performance compatible, optimisé pour charges analytiques+transactionnelles (HTAP) (≈ Aurora PostgreSQL).
-
-Mnémo: "Spanner = SQL global + scale horizontal + cohérence forte", "Bigtable = NoSQL massif/IoT", "Firestore = NoSQL appli mobile/web", "BigQuery = analytique SQL serverless".
-
-🔥⭐⭐⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
 
 ---
 
-## Cloud SQL - HA, réplicas et connectivité
+## Managed Instance Groups (MIGs)
 
-- HA (regional) : instance primaire + standby synchrone dans une autre zone de la même région, failover automatique (≈ RDS Multi-AZ). Le standby n'est pas utilisable en lecture.
-- Read Replicas : réplication asynchrone, même région ou cross-région (pour DR/latence de lecture), peuvent être promues en instance autonome (≈ RDS Read Replicas).
-- Connectivité : Private IP (via PSA, recommandé), Public IP (avec autorisations réseau ou Cloud SQL Auth Proxy qui gère le chiffrement/IAM sans configurer de SSL manuellement).
-- Cloud SQL Auth Proxy / Connectors : gèrent l'authentification IAM et le chiffrement TLS vers Cloud SQL sans gérer de certificats manuellement, utile depuis Cloud Run/GKE/Compute.
-- Point-in-time recovery (PITR) : restauration à un instant T via les logs binaires (nécessite leur activation).
+### Definition & Purpose
+MIGs manage groups of identical VM instances from templates with autoscaling, autohealing, rolling updates, and multi-zone deployment. They integrate with Compute Engine, health checks, Cloud Load Balancing, autoscaling metrics, and instance templates; deployment model is managed VM fleet orchestration.
 
-🔥⭐⭐⭐
+### Exam Triggers
+- "autoscale VM group"
+- "autohealing"
+- "rolling update canary"
+- "regional MIG"
+- "instance template"
 
----
+### Not to be confused with (MANDATORY)
+Google Kubernetes Engine - MIGs manage VM replicas, while GKE manages container workloads and Kubernetes orchestration.
 
-## Cloud Spanner - configuration & scaling
+▎ Choose Managed Instance Groups (MIGs) if you need autoscaled and autohealed VM fleets rather than containers / Choose Google Kubernetes Engine if you need Kubernetes container scheduling and orchestration.
 
-- Instance configuration : Regional (1 région, 3 réplicas dans des zones différentes) vs Multi-region (réplicas répartis entre plusieurs régions pour une dispo encore plus forte et lecture à faible latence partout, avec un coût plus élevé).
-- Capacité : exprimée en nodes (1000 processing units) ou en granular processing units (100 PU minimum) - scaling horizontal en ajoutant des nodes/PU, sans downtime.
-- Interleaved tables : modélisation de relations parent-enfant colocalisées physiquement pour optimiser les jointures à grande échelle.
-- Piège: Spanner garantit une cohérence forte ET un scaling horizontal quasi illimité avec SQL - une combinaison qu'aucun service AWS natif n'offre directement (Aurora = pas de scale horizontal illimité en écriture ; DynamoDB = pas de SQL/cohérence forte multi-item par défaut).
+### Security & FAQ Insights
+- Regional MIGs distribute instances across zones for HA.
+- Health checks drive autohealing and load balancer membership.
+- Use rolling/canary updates for controlled VM template changes.
 
-🔥⭐⭐⭐⭐
-
----
-
-## BigQuery - architecture & optimisation
-
-- Séparation stockage/calcul : les données sont stockées dans Colossus (stockage distribué Google), le calcul (slots) est alloué dynamiquement par requête.
-- Pricing : On-demand (facturé au volume de données scannées par requête) vs Capacity-based / Editions (slots réservés, coût prévisible pour charge constante/élevée).
-- Partitioning & Clustering : le partitionnement (par date/entier) réduit le volume scanné en éliminant des partitions non pertinentes ; le clustering trie physiquement les données dans chaque partition pour accélérer les filtres/agrégations - les deux réduisent fortement coût ET latence.
-- Materialized Views : vues pré-calculées et rafraîchies automatiquement, accélèrent les requêtes répétitives sans re-scanner toute la table.
-- BI Engine : couche d'accélération en mémoire pour des dashboards (Looker Studio, etc.) avec une latence sub-seconde.
-- Authorized Views / Datasets : permet de partager le résultat d'une requête (vue) sans donner accès aux tables sous-jacentes - utile pour le partage de données inter-équipes/projets en respectant le moindre privilège.
-- BigQuery Omni : exécute des requêtes BigQuery sur des données stockées dans S3/Azure Blob sans les déplacer (analytique multi-cloud).
-
-Piège: pour réduire les coûts d'une charge BigQuery imprévisible avec beaucoup de petites requêtes -> on-demand + partitioning/clustering ; pour une charge stable et prévisible à fort volume -> capacity-based (slots réservés/Editions).
-
-🔥⭐⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
 
 ---
 
-## Filestore & Persistent Disk
+## Google Kubernetes Engine (GKE)
 
-- Persistent Disk : stockage bloc attaché aux VM (zonal ou régional pour la réplication synchrone entre 2 zones). ≈ AWS EBS (régional ≈ EBS multi-AZ qui n'existe pas nativement côté AWS - PD régional est en fait une spécificité GCP).
-- Filestore : système de fichiers NFS managé (≈ Amazon EFS).
-- Hyperdisk : nouvelle génération de disques avec IOPS/débit configurables indépendamment de la taille (≈ EBS io2 Block Express / gp3).
+### Definition & Purpose
+GKE is managed Kubernetes for running containerized workloads with Standard and Autopilot operating modes. It integrates with IAM/Workload Identity, VPC-native networking, Cloud Load Balancing, Artifact Registry, Cloud Operations, Config Sync, and Anthos/GKE Enterprise; deployment model is managed Kubernetes with customer-managed or Autopilot-managed nodes.
 
-🔥⭐⭐
+### Exam Triggers
+- "managed Kubernetes"
+- "GKE Autopilot vs Standard"
+- "node pools"
+- "Workload Identity"
+- "regional private cluster"
 
----
+### Not to be confused with (MANDATORY)
+Cloud Run - GKE is Kubernetes orchestration for complex container platforms, while Cloud Run is serverless container execution for request/event services.
 
-# Partie 5 - Migration & transfert de données
+▎ Choose Google Kubernetes Engine (GKE) if you need Kubernetes APIs, multi-container orchestration, custom scheduling, or platform control / Choose Cloud Run if you need simple serverless containers without cluster operations.
 
-## Outils de migration GCP
+### Security & FAQ Insights
+- Autopilot manages nodes and charges closer to pod resources; Standard gives node-pool control.
+- VPC-native alias IP clusters are preferred.
+- Private clusters and authorized networks are common security exam traps.
 
-- Migrate to Virtual Machines (anciennement Migrate for Compute Engine) : migre des VM (VMware, AWS EC2, Azure) vers Compute Engine avec une réplication continue, similaire à un "lift and shift" automatisé. ≈ AWS Application Migration Service (MGN).
-- Database Migration Service (DMS) : migration de MySQL/PostgreSQL/SQL Server vers Cloud SQL/AlloyDB avec réplication continue (CDC). ≈ AWS DMS.
-- Storage Transfer Service : transfert/synchronisation de données depuis S3, Azure Blob, HTTP/HTTPS ou un autre bucket GCS vers Cloud Storage, sur planning récurrent. ≈ AWS DataSync.
-- Transfer Appliance : appliance physique pour transférer de très gros volumes de données quand la bande passante est insuffisante. ≈ AWS Snowball.
-- BigQuery Data Transfer Service : automatise l'ingestion récurrente de données depuis des SaaS (Google Ads, YouTube...) ou d'autres entrepôts vers BigQuery.
-
-🔥⭐⭐⭐
-
----
-
-# Partie 6 - Sécurité
-
-## Cloud KMS & Secret Manager
-
-- Cloud KMS : gestion de clés de chiffrement (symétriques/asymétriques), CMEK (Customer-Managed Encryption Keys) pour chiffrer les données stockées (GCS, BigQuery, disques) avec ses propres clés, CSEK (Customer-Supplied Encryption Keys) pour fournir directement le matériel de clé. ≈ AWS KMS.
-- Secret Manager : stockage versionné de secrets (API keys, mots de passe) avec contrôle d'accès IAM et rotation (via Cloud Functions/Scheduler, pas nativement automatique comme AWS Secrets Manager pour certaines bases). ≈ AWS Secrets Manager / Parameter Store.
-
-🔥⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
-## Identity-Aware Proxy (IAP) & Security Command Center
+## Cloud Run
 
-- Identity-Aware Proxy (IAP) : permet d'accéder à des applications/VM (SSH/RDP via IAP TCP forwarding, ou apps web) sans VPN, en authentifiant chaque requête via IAM/Identity (BeyondCorp / Zero Trust). ≈ pas d'équivalent direct AWS unique - combine SSM Session Manager (accès sans VPN) + un reverse-proxy authentifiant type ALB+Cognito.
-- Security Command Center (SCC) : plateforme centrale de gestion de la posture de sécurité (détection de menaces, vulnérabilités, conformité), niveaux Standard/Premium. ≈ AWS Security Hub + GuardDuty combinés.
+### Definition & Purpose
+Cloud Run runs stateless containers serverlessly with automatic scaling, scale-to-zero, HTTP/event triggers, and revisions. It integrates with Artifact Registry, Cloud Build, Eventarc, Pub/Sub, Serverless VPC Access/direct VPC egress, IAM, and Cloud Load Balancing; deployment model is fully managed serverless containers.
 
-🔥⭐⭐⭐
+### Exam Triggers
+- "serverless containers"
+- "scale to zero"
+- "stateless HTTP service"
+- "container image without Kubernetes"
+- "Cloud Run revisions"
 
----
+### Not to be confused with (MANDATORY)
+GKE - Cloud Run abstracts infrastructure for stateless containers, while GKE provides full Kubernetes control.
 
-# Partie 7 - Fiabilité, observabilité & coûts
+▎ Choose Cloud Run if you need to deploy stateless containers quickly with no cluster/node management / Choose GKE if you need Kubernetes-native control, stateful workloads, custom scheduling, or complex networking.
 
-## Régions, zones et haute disponibilité
+### Security & FAQ Insights
+- Concurrency, min instances, and CPU allocation affect latency and cost.
+- Use VPC egress/connectors for private resources.
+- IAM controls whether a service is public or authenticated.
 
-Définition: Une région GCP contient plusieurs zones (généralement 3+), chaque zone = un ou plusieurs datacenters avec alimentation/réseau indépendants. Pour la HA, répartir les ressources sur plusieurs zones (MIG multi-zone, Persistent Disk régional, Cloud SQL HA cross-zone) ; pour le DR, répartir sur plusieurs régions.
-
-≈ Région AWS = Région GCP, Zone GCP = AZ AWS (mais le mapping de nommage n'est pas garanti identique entre comptes/projets).
-
-🔥⭐⭐⭐
-
----
-
-## Cloud Monitoring, Cloud Logging (anciennement Stackdriver)
-
-- Cloud Monitoring : métriques, dashboards, alerting sur les ressources GCP et applications (via OpenTelemetry/agent Ops). ≈ Amazon CloudWatch (métriques + alarms).
-- Cloud Logging : collecte centralisée de logs (audit logs, logs applicatifs, logs de plateforme), avec des "sinks" pour exporter vers BigQuery/GCS/Pub-Sub. ≈ CloudWatch Logs + CloudTrail (les Cloud Audit Logs incluent Admin Activity, Data Access, System Event, Policy Denied).
-
-🔥⭐⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
-## Gestion des coûts
+## App Engine
 
-- Billing Account : peut être lié à plusieurs projects, avec des Budgets & Alerts configurables par projet/dossier.
-- Recommender : recommandations automatiques de rightsizing (VM sous-utilisées, disques inutilisés, droits IAM trop larges). ≈ AWS Compute Optimizer + Trusted Advisor.
-- Committed Use Discounts (CUD) : remise sur engagement de ressources (spend-based ou resource-based), 1 ou 3 ans. ≈ Savings Plans / RI.
-- Sustained Use Discounts : remise automatique (sans engagement) pour les VM qui tournent une grande partie du mois (spécificité GCP, pas d'équivalent AWS direct).
+### Definition & Purpose
+App Engine is a fully managed application platform with Standard and Flexible environments for deploying web apps without managing infrastructure. It integrates with Cloud Build, Cloud Tasks, Cloud Scheduler, Firestore/Datastore, Cloud Logging, and IAM; deployment model is managed PaaS.
 
-🔥⭐⭐⭐
+### Exam Triggers
+- "PaaS web application"
+- "Standard vs Flexible"
+- "legacy app platform"
+- "deploy app without managing servers"
 
----
+### Not to be confused with (MANDATORY)
+Cloud Run - App Engine is opinionated PaaS with runtimes/environments, while Cloud Run is container-first serverless.
 
-# Partie 8 - Big Data & découplage (souvent dans les cas d'usage de l'examen)
+▎ Choose App Engine if the application fits App Engine runtimes or existing App Engine architecture / Choose Cloud Run if you want portable containers and more explicit container/runtime control.
 
-## Pub/Sub, Dataflow, Dataproc
+### Security & FAQ Insights
+- Standard can scale to zero quickly; Flexible runs on managed VM infrastructure and is slower to scale.
+- Good for legacy GCP app-platform scenarios.
+- Do not pick App Engine when the exam emphasizes arbitrary containers.
 
-- Pub/Sub : messagerie asynchrone pub/sub globale et durable, "push" ou "pull", garantit at-least-once delivery. ≈ Amazon SNS (fan-out) + SQS combinés, à l'échelle globale.
-- Dataflow : traitement de données serverless (batch et streaming) basé sur Apache Beam, autoscaling. ≈ pas d'équivalent direct unique AWS (proche de Kinesis Data Analytics / Glue pour Spark, mais unifié batch+streaming).
-- Dataproc : clusters Hadoop/Spark managés, éphémères. ≈ Amazon EMR.
-
-Mnémo: Pub/Sub = ingestion/découplage événementiel global, Dataflow = traitement (ETL) batch+streaming unifié, Dataproc = pour migrer des jobs Hadoop/Spark existants.
-
-🔥⭐⭐⭐
-
----
-
-## Cloud Composer & orchestration
-
-- Cloud Composer : Apache Airflow managé, pour orchestrer des workflows complexes multi-services (ETL, ML pipelines) avec dépendances. ≈ Amazon MWAA (Managed Workflows for Apache Airflow).
-- Cloud Tasks : exécution asynchrone et différée de tâches (avec contrôle de débit/retry) appelant typiquement un endpoint HTTP ou Cloud Function. ≈ Amazon SQS + Lambda (avec gestion fine du throttling).
-- Cloud Scheduler : cron managé déclenchant des HTTP endpoints, Pub/Sub ou App Engine. ≈ Amazon EventBridge Scheduler.
-
-🔥⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
 
 ---
 
-# Partie 9 - CI/CD & Infrastructure as Code
+## Cloud Functions
 
-## Cloud Build, Artifact Registry, Cloud Deploy
+### Definition & Purpose
+Cloud Functions runs event-driven functions triggered by HTTP, Pub/Sub, Cloud Storage, Firestore, Eventarc, and other events. It integrates with Cloud Run infrastructure in 2nd gen, IAM, Cloud Logging, Secret Manager, and VPC access; deployment model is serverless functions.
 
-- Cloud Build : service CI/CD serverless qui exécute des étapes de build définies dans un fichier `cloudbuild.yaml` (build d'images Docker, tests, déploiement), déclenchable par des triggers (push GitHub/Cloud Source Repositories). ≈ AWS CodeBuild.
-- Artifact Registry : registre managé pour images de conteneurs, packages (Maven, npm, Python...) - remplace Container Registry (déprécié). ≈ Amazon ECR + CodeArtifact.
-- Cloud Deploy : service de delivery continue managé pour déployer vers GKE/Cloud Run avec des pipelines de promotion (dev -> staging -> prod) et des approbations manuelles. ≈ AWS CodeDeploy / CodePipeline.
+### Exam Triggers
+- "event-driven function"
+- "Cloud Storage trigger"
+- "Pub/Sub trigger"
+- "2nd gen runs on Cloud Run"
+- "small function without container management"
 
-🔥⭐⭐
+### Not to be confused with (MANDATORY)
+Cloud Run - Cloud Functions is function-centric event code, while Cloud Run is container-centric service deployment.
 
----
+▎ Choose Cloud Functions if you need simple event-driven function execution with minimal packaging / Choose Cloud Run if you need full container image control or a long-running HTTP container service.
 
-## Infrastructure as Code
+### Security & FAQ Insights
+- 2nd gen Cloud Functions uses Cloud Run/Eventarc foundations.
+- Set retries carefully to avoid duplicate side effects.
+- Use least-privilege service accounts and Secret Manager for secrets.
 
-- Terraform : outil IaC multi-cloud le plus utilisé avec GCP (provider `google`), souvent la réponse attendue à l'examen pour "reproductible, versionné, multi-environnement".
-- Deployment Manager : outil IaC natif GCP historique (YAML/Python), largement remplacé par Terraform dans les nouvelles architectures.
-- Config Connector : permet de gérer des ressources GCP comme des objets Kubernetes (CRDs) via GKE - pour les équipes "GitOps" qui pilotent déjà leur infra via Kubernetes.
-
-🔥⭐⭐
-
----
-
-# Partie 10 - Hybride & Multi-cloud
-
-## Anthos / GKE Enterprise
-
-Définition: Plateforme permettant de gérer des clusters Kubernetes de façon cohérente sur GCP (GKE), on-premise (GKE on Bare Metal/VMware) et sur d'autres clouds (GKE on AWS/Azure), avec une gestion centralisée de la configuration (Config Sync/GitOps), de la sécurité (Policy Controller basé sur OPA/Gatekeeper) et du service mesh (Anthos Service Mesh / Istio).
-
-Cas d'usage typique de l'examen: "l'entreprise veut une plateforme Kubernetes cohérente entre son datacenter et GCP, avec des policies de sécurité appliquées partout" -> Anthos / GKE Enterprise.
-
-≈ pas d'équivalent direct unique côté AWS (proche d'EKS Anywhere + Systems Manager + Config combinés, mais Anthos est plus intégré et orienté Kubernetes/Istio).
-
-🔥⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
 
 ---
 
-# Partie 11 - Conformité, identité avancée & gestion organisationnelle
+## GKE Workload Identity
 
-## Assured Workloads, Access Transparency, Access Approval
+### Definition & Purpose
+GKE Workload Identity lets Kubernetes service accounts access Google Cloud APIs through mapped IAM service accounts without static keys. It integrates with GKE, IAM, service accounts, and metadata server; deployment model is managed workload federation inside GKE.
 
-- Assured Workloads : applique automatiquement des contrôles de conformité (résidence des données, restrictions de personnel support, chiffrement) pour des régimes réglementaires spécifiques (FedRAMP, IL4, etc.) sur un dossier de projets.
-- Access Transparency : logs montrant les actions effectuées par le personnel Google sur vos ressources/données (quand l'accès support est nécessaire).
-- Access Approval : exige une approbation explicite du client avant que le personnel Google n'accède à ses données/configurations.
+### Exam Triggers
+- "Pods access GCP APIs without JSON keys"
+- "map Kubernetes service account to IAM service account"
+- "least privilege for Pods"
+- "GKE identity"
 
-≈ Pas d'équivalent direct grand public côté AWS (proche d'AWS Artifact pour la conformité documentaire, mais ces contrôles GCP sont plus opérationnels/temps réel).
+### Not to be confused with (MANDATORY)
+Service Account keys - Workload Identity avoids static keys, while JSON keys are long-lived credentials that must be managed and rotated.
 
-🔥⭐⭐
+▎ Choose GKE Workload Identity if GKE pods need Google Cloud API access securely without key files / Choose Service Account keys if a legacy external workload cannot use federation or attached identity and requires a managed key temporarily.
 
----
+### Security & FAQ Insights
+- Preferred over mounting service account JSON keys in pods.
+- Requires IAM binding between Kubernetes and IAM service accounts.
+- Exam trap: node service account permissions should not be shared by all pods.
 
-## Cloud Identity, Workforce Identity Federation vs Workload Identity Federation
-
-- Cloud Identity : gère les identités des utilisateurs/groupes (annuaire) indépendamment de Google Workspace, base de l'IAM GCP pour les humains.
-- Workforce Identity Federation : permet à des UTILISATEURS authentifiés via un IdP externe (Azure AD, Okta, SAML/OIDC) d'accéder à la console/API GCP sans compte Cloud Identity dédié. ≈ AWS IAM Identity Center fédéré avec un IdP externe.
-- Workload Identity Federation : permet à des CHARGES DE TRAVAIL externes (autre cloud, on-prem, CI/CD comme GitHub Actions) d'obtenir des credentials GCP temporaires via OIDC, sans clé de service account statique. ≈ AWS IAM Role assumable via OIDC (ex: GitHub Actions -> AWS).
-- Workload Identity (GKE) : cas particulier de Workload Identity Federation pour les Pods GKE (≈ IRSA AWS).
-
-Piège: bien distinguer "Workforce" (humains, accès console) de "Workload" (charges de travail/applications, accès API).
-
-🔥⭐⭐⭐
-
----
-
-## Resource Manager : tags, labels et quotas
-
-- Labels : paires clé/valeur sur les ressources pour le filtrage de coûts/inventaire (purement informatif).
-- Tags (secure tags) : paires clé/valeur qui peuvent être référencées dans des Organization Policies et des règles de pare-feu pour appliquer des conditions (≈ AWS Resource Tags utilisés en conditions IAM/SCP).
-- Quotas : limites par projet/région (ex: nombre d'IP, vCPU) - certaines ajustables via demande à Google, d'autres "system limits" non ajustables.
-- Resource Hierarchy "liens" (asset.googleapis.com) / Cloud Asset Inventory : inventaire et historique de toutes les ressources et politiques IAM de l'organisation, exportable pour audit.
-
-🔥⭐⭐
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
 
 ---
 
-# Partie 12 - API Management
+# Part 4 - Storage, Databases, Analytics & AI
 
-## Apigee & API Gateway
+## Cloud Storage
 
-- Apigee : plateforme complète de gestion d'API (API management) pour exposer, sécuriser, monitorer et monétiser des API à grande échelle (quotas, analytics, transformation de payloads, developer portal). ≈ Amazon API Gateway + une partie de CloudFront/WAF, mais avec des fonctionnalités de gouvernance/monétisation bien plus poussées.
-- API Gateway (Cloud Endpoints / API Gateway managé) : solution plus légère pour exposer des API serverless (Cloud Functions/Cloud Run) avec authentification et limitation de débit basique. ≈ Amazon API Gateway (cas d'usage simple).
+### Definition & Purpose
+Cloud Storage is globally accessible object storage for data lakes, backups, static content, logs, and archival tiers. It integrates with IAM, KMS/CMEK, lifecycle management, Autoclass, Cloud CDN, BigQuery, Dataflow, Pub/Sub notifications, and Storage Transfer Service; deployment model is fully managed serverless object storage.
 
-Mnémo: petit besoin (exposer une API serverless avec clé API/auth) -> API Gateway ; besoin entreprise (monétisation, portail développeur, gouvernance multi-équipes) -> Apigee.
+### Exam Triggers
+- "object storage"
+- "bucket location region dual-region multi-region"
+- "Autoclass"
+- "retention policy Bucket Lock"
+- "signed URLs"
 
-🔥⭐⭐
+### Not to be confused with (MANDATORY)
+Filestore - Cloud Storage stores objects through APIs, while Filestore provides NFS file shares.
+
+▎ Choose Cloud Storage if you need durable object storage, data lake storage, lifecycle, signed URLs, or WORM retention / Choose Filestore if applications require POSIX/NFS shared file semantics.
+
+### Security & FAQ Insights
+- Bucket names are globally unique.
+- Retention policies with Bucket Lock enforce WORM-style compliance.
+- Dual-region/multi-region choices affect availability, latency, cost, and residency.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
 
 ---
 
-# Tableau récapitulatif - équivalences rapides AWS <-> GCP
+## Persistent Disk and Hyperdisk
 
-| AWS | GCP |
-|---|---|
-| Organizations / OU / Account | Organization / Folder / Project |
-| SCP | Organization Policies |
-| IAM Role + Instance Profile | Service Account |
-| VPC (régional) | VPC (global) + Subnets (régionaux) |
-| Transit Gateway | Network Connectivity Center |
-| PrivateLink | Private Service Connect |
-| Direct Connect | Cloud Interconnect (Dedicated/Partner) |
-| Site-to-Site VPN | Cloud VPN (HA VPN) |
-| ALB / NLB + Global Accelerator + CloudFront | Cloud Load Balancing (Global external HTTP(S)) + Cloud CDN |
-| NAT Gateway | Cloud NAT |
-| WAF + Shield | Cloud Armor |
-| EC2 ASG | Managed Instance Group (MIG) |
-| EKS / Fargate | GKE Standard / GKE Autopilot |
-| ECS Fargate / App Runner | Cloud Run |
-| Elastic Beanstalk | App Engine |
-| Lambda | Cloud Functions (2nd gen, sur Cloud Run) |
-| S3 | Cloud Storage |
-| EBS / EFS | Persistent Disk / Filestore |
-| RDS | Cloud SQL |
-| Aurora Global (proche) | Cloud Spanner (cohérence forte + scale horizontal) |
-| DynamoDB | Firestore (appli) / Bigtable (volumétrie/IoT) |
-| Redshift | BigQuery |
-| ElastiCache | Memorystore |
-| KMS | Cloud KMS |
-| Secrets Manager / Parameter Store | Secret Manager |
-| GuardDuty + Security Hub | Security Command Center |
-| CloudWatch | Cloud Monitoring |
-| CloudTrail | Cloud Audit Logs |
-| MGN | Migrate to Virtual Machines |
-| DMS | Database Migration Service |
-| DataSync | Storage Transfer Service |
-| Snowball | Transfer Appliance |
-| SNS + SQS | Pub/Sub |
-| Glue / Kinesis Data Analytics / EMR | Dataflow / Dataproc |
-| Savings Plans / RI | Committed Use Discounts |
-| Compute Optimizer / Trusted Advisor | Recommender |
-| MWAA (Airflow) | Cloud Composer |
-| EventBridge Scheduler | Cloud Scheduler |
-| SQS + Lambda (throttling) | Cloud Tasks |
-| CodeBuild | Cloud Build |
-| ECR / CodeArtifact | Artifact Registry |
-| CodeDeploy / CodePipeline | Cloud Deploy |
-| RDS-in-VPC (direct) | Cloud SQL via Private Services Access (PSA) |
-| Lambda in VPC (ENI) | Serverless VPC Access connector |
-| IAM Role via OIDC (ex: GitHub Actions) | Workload Identity Federation |
-| IAM Identity Center fédéré | Workforce Identity Federation |
-| Resource Tags en condition IAM/SCP | Secure Tags |
-| API Gateway | API Gateway (Cloud Endpoints) / Apigee (entreprise) |
-| EKS Anywhere + Config + SSM (combiné) | Anthos / GKE Enterprise |
+### Definition & Purpose
+Persistent Disk and Hyperdisk provide block storage for Compute Engine and GKE nodes with zonal/regional availability and configurable performance. They integrate with Compute Engine, snapshots, images, regional replication, KMS/CMEK, and GKE; deployment model is managed block storage attached to VMs.
+
+### Exam Triggers
+- "block storage for VM"
+- "regional Persistent Disk"
+- "Hyperdisk configurable IOPS throughput"
+- "boot disk data disk"
+- "snapshots"
+
+### Not to be confused with (MANDATORY)
+Cloud Storage - Persistent Disk/Hyperdisk are block devices for VMs, while Cloud Storage is object storage accessed through APIs.
+
+▎ Choose Persistent Disk and Hyperdisk if a VM or node needs boot/data block storage with disk semantics / Choose Cloud Storage if you need object storage, data lake, static content, or archival storage.
+
+### Security & FAQ Insights
+- Regional Persistent Disk replicates synchronously across two zones.
+- Hyperdisk separates performance provisioning from capacity more flexibly.
+- Snapshots support backup and migration patterns.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Filestore
+
+### Definition & Purpose
+Filestore provides managed NFS file shares for applications that need POSIX-style shared file access. It integrates with Compute Engine, GKE, VPC, backups, KMS/CMEK in supported tiers, and enterprise file workloads; deployment model is fully managed file storage.
+
+### Exam Triggers
+- "managed NFS file share"
+- "shared files for GKE or VMs"
+- "POSIX semantics"
+- "lift-and-shift file workload"
+
+### Not to be confused with (MANDATORY)
+Cloud Storage - Filestore is mounted file storage, while Cloud Storage is object storage.
+
+▎ Choose Filestore if applications need shared NFS/POSIX file access / Choose Cloud Storage if applications can use object APIs and do not need file-system semantics.
+
+### Security & FAQ Insights
+- Choose tier based on throughput, capacity, and availability needs.
+- Not a general replacement for object storage data lakes.
+- Network placement and mount permissions matter for access control.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Cloud SQL
+
+### Definition & Purpose
+Cloud SQL provides managed MySQL, PostgreSQL, and SQL Server with backups, HA, read replicas, private IP, IAM database auth options, and maintenance. It integrates with Private Services Access, Cloud SQL Auth Proxy/connectors, KMS, DMS, Cloud Run, GKE, and Monitoring; deployment model is fully managed relational database instances.
+
+### Exam Triggers
+- "managed MySQL PostgreSQL SQL Server"
+- "regional HA standby"
+- "read replicas"
+- "Cloud SQL Auth Proxy"
+- "private IP via PSA"
+
+### Not to be confused with (MANDATORY)
+Cloud Spanner - Cloud SQL is traditional relational managed database, while Spanner is globally distributed horizontally scalable relational database with strong consistency.
+
+▎ Choose Cloud SQL if you need managed standard relational engines with moderate scaling and familiar SQL administration / Choose Cloud Spanner if you need global strong consistency and horizontal relational scale.
+
+### Security & FAQ Insights
+- HA standby is not used for reads.
+- Read replicas are asynchronous and can be cross-region.
+- Private IP uses Private Services Access and inherits peering design considerations.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## AlloyDB
+
+### Definition & Purpose
+AlloyDB is a high-performance PostgreSQL-compatible managed database optimized for demanding transactional and analytical workloads. It integrates with Private Services Access, Database Migration Service, IAM, KMS, backups, and Cloud Monitoring; deployment model is fully managed PostgreSQL-compatible database clusters.
+
+### Exam Triggers
+- "high-performance PostgreSQL compatible"
+- "HTAP workload"
+- "migrate PostgreSQL to managed service"
+- "AlloyDB read pools"
+
+### Not to be confused with (MANDATORY)
+Cloud SQL for PostgreSQL - AlloyDB targets higher performance and advanced PostgreSQL-compatible workloads, while Cloud SQL is the general managed relational service.
+
+▎ Choose AlloyDB if PostgreSQL compatibility is required with higher performance, read pools, or HTAP-style workloads / Choose Cloud SQL for PostgreSQL if you need a simpler managed PostgreSQL service or SQL Server/MySQL support.
+
+### Security & FAQ Insights
+- Private connectivity typically uses PSA.
+- Read pools scale read traffic separately.
+- Good modernization target for PostgreSQL-heavy workloads.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Cloud Spanner
+
+### Definition & Purpose
+Cloud Spanner is a globally distributed relational database with SQL, horizontal scaling, high availability, and external strong consistency. It integrates with IAM, KMS, backups, change streams, Dataflow, BigQuery federation, and multi-region configurations; deployment model is fully managed distributed relational database.
+
+### Exam Triggers
+- "global relational database"
+- "strong consistency"
+- "horizontal SQL scale"
+- "multi-region OLTP"
+- "Spanner nodes processing units"
+
+### Not to be confused with (MANDATORY)
+Cloud SQL - Spanner is globally distributed and horizontally scalable, while Cloud SQL is a traditional managed relational database.
+
+▎ Choose Cloud Spanner if you need global OLTP, strong consistency, SQL, and horizontal scale together / Choose Cloud SQL if you need a simpler regional relational database with standard engines.
+
+### Security & FAQ Insights
+- Regional and multi-region configurations trade cost, latency, and availability.
+- Scaling uses nodes or processing units.
+- Common trap: Spanner is not the default answer for small relational workloads due to cost/complexity.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Firestore
+
+### Definition & Purpose
+Firestore is a serverless NoSQL document database for web/mobile apps, real-time sync, offline support, and flexible document queries. It integrates with Firebase, Cloud Functions, App Engine, IAM/security rules, backups, and event triggers; deployment model is fully managed serverless document database.
+
+### Exam Triggers
+- "mobile web app realtime sync"
+- "NoSQL document database"
+- "offline support"
+- "Firestore Native mode"
+- "Firebase app backend"
+
+### Not to be confused with (MANDATORY)
+Cloud Bigtable - Firestore is document/application-oriented with real-time sync, while Bigtable is wide-column high-throughput storage for massive analytical/IoT workloads.
+
+▎ Choose Firestore if you need serverless document storage for app/mobile/web use with real-time/offline features / Choose Cloud Bigtable if you need petabyte-scale low-latency wide-column workloads such as IoT/time-series.
+
+### Security & FAQ Insights
+- Design document paths and indexes for query patterns.
+- Security rules are common in Firebase-style apps.
+- Not for relational joins or analytical warehouse queries.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Cloud Bigtable
+
+### Definition & Purpose
+Bigtable is a managed wide-column NoSQL database for petabyte-scale low-latency workloads such as IoT, time series, ad tech, and analytics ingestion. It integrates with Dataflow, Dataproc/HBase API, BigQuery, Cloud Monitoring, and backups/replication; deployment model is fully managed distributed NoSQL clusters.
+
+### Exam Triggers
+- "wide-column database"
+- "IoT time-series"
+- "HBase compatible"
+- "petabyte scale low latency"
+- "massive write throughput"
+
+### Not to be confused with (MANDATORY)
+Firestore - Bigtable is for massive wide-column workloads, while Firestore is document-oriented app database with realtime/mobile features.
+
+▎ Choose Cloud Bigtable if you need very high throughput wide-column storage for time-series or analytical operational data / Choose Firestore if you need app-centric document storage with realtime sync and offline support.
+
+### Security & FAQ Insights
+- Schema design centers on row key distribution to avoid hotspots.
+- Cluster/node sizing affects cost and performance.
+- Not a relational database and not a serverless document database.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Memorystore
+
+### Definition & Purpose
+Memorystore provides managed Redis, Valkey, and Memcached-compatible in-memory caching for low-latency data access. It integrates with VPC, Private Service Access/Connect depending on product/mode, Cloud Run/GKE/Compute clients, and Monitoring; deployment model is fully managed in-memory cache.
+
+### Exam Triggers
+- "managed Redis cache"
+- "session store"
+- "reduce database read latency"
+- "Memcached"
+- "in-memory data store"
+
+### Not to be confused with (MANDATORY)
+Cloud Bigtable - Memorystore is an in-memory cache, while Bigtable is persistent wide-column storage.
+
+▎ Choose Memorystore if you need low-latency caching, session storage, or Redis/Memcached semantics / Choose Cloud Bigtable if you need persistent large-scale NoSQL storage.
+
+### Security & FAQ Insights
+- Cache data is not a substitute for durable source-of-truth storage.
+- Network/private connectivity design matters for serverless access.
+- Sizing and high-availability tier affect cost and resilience.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## BigQuery
+
+### Definition & Purpose
+BigQuery is a serverless data warehouse for analytical SQL over large datasets with separated storage/compute and integrated ML/geospatial features. It integrates with Cloud Storage, Dataflow, Dataproc, Pub/Sub, Looker, BI Engine, Data Transfer Service, IAM, KMS, and authorized views; deployment model is fully managed serverless analytics.
+
+### Exam Triggers
+- "serverless data warehouse"
+- "partitioning clustering"
+- "on-demand vs slots"
+- "authorized views"
+- "BigQuery Omni"
+
+### Not to be confused with (MANDATORY)
+Cloud SQL - BigQuery is OLAP analytics, while Cloud SQL is OLTP application database.
+
+▎ Choose BigQuery if you need large-scale analytical SQL, BI, data warehouse, or query data in Cloud Storage / Choose Cloud SQL if you need transactional application reads/writes.
+
+### Security & FAQ Insights
+- Partitioning and clustering reduce scanned data, cost, and latency.
+- Capacity editions/slots fit predictable high-volume workloads; on-demand fits variable workloads.
+- Authorized views share derived results without exposing base tables.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐⭐ — Core exam topic; frequently tested through architecture case studies and service-selection tradeoffs.
+
+---
+
+## Looker
+
+### Definition & Purpose
+Looker provides governed business intelligence, semantic modeling, dashboards, and embedded analytics. It integrates with BigQuery and other databases, LookML models, IAM/identity providers, and data governance workflows; deployment model is managed BI/semantic analytics platform.
+
+### Exam Triggers
+- "business intelligence dashboards"
+- "semantic model"
+- "LookML"
+- "governed metrics"
+- "embedded analytics"
+
+### Not to be confused with (MANDATORY)
+BigQuery - Looker visualizes and governs analytics consumption, while BigQuery stores and queries warehouse data.
+
+▎ Choose Looker if users need governed dashboards, semantic metrics, and BI consumption / Choose BigQuery if engineers need the underlying serverless data warehouse and SQL execution engine.
+
+### Security & FAQ Insights
+- Looker is often paired with BigQuery for enterprise analytics.
+- Governed semantic models reduce inconsistent metric definitions.
+- Not the service that performs large-scale storage/compute itself.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Vertex AI
+
+### Definition & Purpose
+Vertex AI is Google Cloud’s unified ML platform for building, training, deploying, evaluating, and using ML and generative AI models. It integrates with BigQuery, Cloud Storage, Dataflow, GPUs/TPUs, Model Registry, Feature Store, Pipelines, Matching Engine/Vector Search, and Gemini APIs; deployment model is fully managed ML/AI platform with managed training and endpoints.
+
+### Exam Triggers
+- "managed ML platform"
+- "train deploy custom model"
+- "Gemini generative AI"
+- "feature store pipelines"
+- "vector search"
+
+### Not to be confused with (MANDATORY)
+BigQuery ML - Vertex AI is the broader ML platform for custom and generative AI workflows, while BigQuery ML trains models directly in SQL inside BigQuery.
+
+▎ Choose Vertex AI if you need end-to-end ML/AI lifecycle, managed model training/deployment, Gemini, or feature pipelines / Choose BigQuery ML if analysts need to create models directly with SQL inside BigQuery.
+
+### Security & FAQ Insights
+- Use Vertex AI endpoints for deployed model serving.
+- CMEK, VPC-SC, private endpoints, and IAM matter for enterprise ML security.
+- PCA may test service selection for AI-assisted architecture even if the exam is not ML-specialist.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+# Part 5 - Data Processing, Messaging & Migration
+
+## Pub/Sub
+
+### Definition & Purpose
+Pub/Sub is a global messaging service for asynchronous event ingestion, fanout, and decoupling with push or pull subscriptions. It integrates with Dataflow, Cloud Functions, Cloud Run, BigQuery subscriptions, Eventarc, and dead-letter topics; deployment model is fully managed serverless messaging.
+
+### Exam Triggers
+- "global pub/sub messaging"
+- "decouple producers consumers"
+- "at-least-once delivery"
+- "push pull subscription"
+- "stream ingestion"
+
+### Not to be confused with (MANDATORY)
+Cloud Tasks - Pub/Sub is event fanout and streaming messaging, while Cloud Tasks queues rate-controlled HTTP tasks for execution.
+
+▎ Choose Pub/Sub if you need durable event ingestion, fanout, or streaming pipeline decoupling / Choose Cloud Tasks if you need per-task HTTP execution with rate limits, retries, and scheduling controls.
+
+### Security & FAQ Insights
+- Delivery is at least once, so consumers must be idempotent.
+- Dead-letter topics handle poison messages.
+- Ordering keys support ordered delivery where needed.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Dataflow
+
+### Definition & Purpose
+Dataflow is a serverless Apache Beam service for unified batch and streaming data processing. It integrates with Pub/Sub, BigQuery, Cloud Storage, Bigtable, Data Catalog, and templates; deployment model is fully managed autoscaling data processing.
+
+### Exam Triggers
+- "Apache Beam"
+- "stream and batch processing"
+- "ETL pipeline"
+- "Pub/Sub to BigQuery"
+- "autoscaling data processing"
+
+### Not to be confused with (MANDATORY)
+Dataproc - Dataflow is serverless Beam pipelines, while Dataproc runs managed Spark/Hadoop clusters.
+
+▎ Choose Dataflow if you need serverless batch/stream processing with Apache Beam and autoscaling / Choose Dataproc if you need to migrate existing Spark/Hadoop jobs or manage cluster-level frameworks.
+
+### Security & FAQ Insights
+- Streaming pipelines require windowing, watermark, and late-data design.
+- Templates support repeatable deployment.
+- Use Dataflow when the exam emphasizes unified batch and stream ETL without cluster management.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Dataproc
+
+### Definition & Purpose
+Dataproc provides managed Hadoop, Spark, Hive, and related open-source clusters for big data processing. It integrates with Cloud Storage, BigQuery connector, Metastore, IAM, autoscaling, and initialization actions; deployment model is managed ephemeral or long-running clusters.
+
+### Exam Triggers
+- "managed Spark Hadoop"
+- "migrate existing Hadoop jobs"
+- "ephemeral cluster"
+- "Dataproc Metastore"
+- "open-source big data tools"
+
+### Not to be confused with (MANDATORY)
+Dataflow - Dataproc is cluster-based Spark/Hadoop, while Dataflow is serverless Beam.
+
+▎ Choose Dataproc if existing Spark/Hadoop workloads or ecosystem tools must run with minimal rewrite / Choose Dataflow if you want serverless unified streaming/batch pipelines without cluster management.
+
+### Security & FAQ Insights
+- Use Cloud Storage as a durable data lake instead of HDFS when possible.
+- Ephemeral clusters reduce cost for scheduled jobs.
+- Cluster sizing and autoscaling remain architectural responsibilities.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Cloud Composer
+
+### Definition & Purpose
+Cloud Composer is managed Apache Airflow for orchestrating workflows with dependencies, schedules, sensors, and multi-service DAGs. It integrates with Dataflow, Dataproc, BigQuery, Cloud Storage, Cloud Functions, GKE, and IAM; deployment model is managed Airflow environments.
+
+### Exam Triggers
+- "managed Airflow"
+- "orchestrate ETL workflow"
+- "DAG dependencies"
+- "multi-step data pipeline"
+
+### Not to be confused with (MANDATORY)
+Cloud Scheduler - Composer orchestrates multi-step workflows, while Scheduler triggers simple cron-style jobs.
+
+▎ Choose Cloud Composer if you need complex workflow orchestration with dependencies and retries / Choose Cloud Scheduler if you only need to trigger a simple job on a schedule.
+
+### Security & FAQ Insights
+- Composer environments have underlying GKE/resources that affect cost.
+- Use service accounts and least privilege for DAG execution.
+- Not a data processing engine itself; it orchestrates other services.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Cloud Tasks
+
+### Definition & Purpose
+Cloud Tasks manages asynchronous task queues with rate control, retries, scheduling, and HTTP target dispatch. It integrates with Cloud Run, Cloud Functions, App Engine, IAM/OIDC tokens, and queue-level throttling; deployment model is fully managed task queue.
+
+### Exam Triggers
+- "rate-limited HTTP tasks"
+- "deferred execution"
+- "retry task endpoint"
+- "queue background work"
+- "throttle downstream service"
+
+### Not to be confused with (MANDATORY)
+Pub/Sub - Tasks controls execution of individual tasks, while Pub/Sub distributes events to subscribers.
+
+▎ Choose Cloud Tasks if you need controlled task execution with retries, rate limits, and HTTP targets / Choose Pub/Sub if you need event fanout or streaming ingestion to multiple consumers.
+
+### Security & FAQ Insights
+- Supports scheduled tasks and retry policies.
+- OIDC tokens can authenticate calls to Cloud Run/Functions.
+- Use for backpressure when downstream services have strict rate limits.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Cloud Scheduler
+
+### Definition & Purpose
+Cloud Scheduler is a managed cron service that triggers HTTP endpoints, Pub/Sub topics, or App Engine jobs on schedules. It integrates with Cloud Run, Cloud Functions, Pub/Sub, IAM/OIDC, and App Engine; deployment model is fully managed scheduling.
+
+### Exam Triggers
+- "cron job"
+- "trigger Cloud Run every hour"
+- "scheduled Pub/Sub message"
+- "managed scheduler"
+
+### Not to be confused with (MANDATORY)
+Cloud Composer - Scheduler triggers simple scheduled actions, while Composer orchestrates complex DAGs.
+
+▎ Choose Cloud Scheduler if you only need a cron-like trigger for one endpoint or message / Choose Cloud Composer if you need multi-step dependency orchestration with Airflow DAGs.
+
+### Security & FAQ Insights
+- Use authenticated HTTP targets with OIDC where possible.
+- Time zone and retry settings affect behavior.
+- Not a workflow orchestration engine.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Storage Transfer Service
+
+### Definition & Purpose
+Storage Transfer Service moves and synchronizes data into Cloud Storage from other clouds, HTTP/S endpoints, or file systems. It integrates with Cloud Storage, AWS S3, Azure Blob, agents for POSIX file systems, scheduling, and IAM; deployment model is managed online transfer service.
+
+### Exam Triggers
+- "transfer S3 to Cloud Storage"
+- "scheduled bucket sync"
+- "online data transfer"
+- "HTTP to GCS"
+- "file system transfer agent"
+
+### Not to be confused with (MANDATORY)
+Transfer Appliance - Storage Transfer Service moves data online over networks, while Transfer Appliance moves data physically offline.
+
+▎ Choose Storage Transfer Service if network-based transfer or recurring sync to Cloud Storage is feasible / Choose Transfer Appliance if network bandwidth is insufficient for the data volume or timeline.
+
+### Security & FAQ Insights
+- Supports scheduled recurring transfers.
+- Agents support file system transfers.
+- Preserve/metadata behavior depends on source and destination capabilities.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Transfer Appliance
+
+### Definition & Purpose
+Transfer Appliance is a physical device for offline bulk data transfer into Google Cloud when network transfer is impractical. It integrates with Cloud Storage import workflows, encryption, and logistics processes; deployment model is Google-shipped physical hardware.
+
+### Exam Triggers
+- "offline data transfer"
+- "network too slow"
+- "large dataset to Cloud Storage"
+- "physical appliance"
+
+### Not to be confused with (MANDATORY)
+Storage Transfer Service - Transfer Appliance is offline physical transfer, while Storage Transfer Service is online network transfer.
+
+▎ Choose Transfer Appliance if offline transfer is faster or required due to bandwidth constraints / Choose Storage Transfer Service if network transfer is feasible and recurring synchronization is needed.
+
+### Security & FAQ Insights
+- Plan encryption, shipping, and chain-of-custody.
+- Best for very large one-time migrations.
+- Not for continuous synchronization.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Migrate to Virtual Machines
+
+### Definition & Purpose
+Migrate to Virtual Machines migrates VM workloads from VMware, AWS, Azure, or other environments to Compute Engine with replication and cutover workflows. It integrates with Compute Engine, VPC, IAM, Cloud Logging, and migration waves; deployment model is managed VM migration service.
+
+### Exam Triggers
+- "lift and shift VMs"
+- "migrate VMware to Compute Engine"
+- "continuous replication"
+- "cutover VM migration"
+
+### Not to be confused with (MANDATORY)
+Database Migration Service - Migrate to VMs moves servers, while DMS migrates databases.
+
+▎ Choose Migrate to Virtual Machines if you need to rehost entire VMs to Compute Engine / Choose Database Migration Service if you need database migration or CDC to Cloud SQL/AlloyDB.
+
+### Security & FAQ Insights
+- Maps to lift-and-shift migration strategies.
+- Test clones and cutover windows reduce risk.
+- Post-migration modernization may use managed services or containers.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Database Migration Service
+
+### Definition & Purpose
+Database Migration Service migrates databases to Cloud SQL and AlloyDB with continuous replication for supported engines. It integrates with Cloud SQL, AlloyDB, source databases, connectivity options, and IAM; deployment model is managed database migration.
+
+### Exam Triggers
+- "migrate MySQL PostgreSQL SQL Server"
+- "CDC to Cloud SQL"
+- "database migration to AlloyDB"
+- "minimal downtime database cutover"
+
+### Not to be confused with (MANDATORY)
+Migrate to Virtual Machines - DMS migrates databases, while Migrate to VMs migrates whole servers.
+
+▎ Choose Database Migration Service if you need managed database migration with replication/CDC / Choose Migrate to Virtual Machines if you need to rehost full VM workloads.
+
+### Security & FAQ Insights
+- Network connectivity and firewall rules are common migration blockers.
+- Schema compatibility must be assessed for heterogeneous migrations.
+- Use private connectivity for secure migration paths where possible.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+# Part 6 - Security, Compliance & Operations
+
+## Cloud KMS
+
+### Definition & Purpose
+Cloud KMS manages cryptographic keys for CMEK, asymmetric/symmetric encryption, rotation, and audit across Google Cloud services. It integrates with Cloud Storage, BigQuery, Persistent Disk, Cloud SQL, Secret Manager, HSM/EKM options, IAM, and Cloud Audit Logs; deployment model is fully managed key management with optional HSM/EKM tiers.
+
+### Exam Triggers
+- "CMEK"
+- "customer-managed encryption key"
+- "key rotation"
+- "Cloud HSM"
+- "External Key Manager"
+
+### Not to be confused with (MANDATORY)
+Secret Manager - KMS manages encryption keys, while Secret Manager stores and versions secret values.
+
+▎ Choose Cloud KMS if you need to control encryption keys or CMEK for services / Choose Secret Manager if you need to store API keys, passwords, or credentials as secrets.
+
+### Security & FAQ Insights
+- IAM on keys controls cryptographic operations.
+- CMEK can affect service availability if keys are disabled or unavailable.
+- Cloud HSM and EKM address stricter key custody requirements.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Secret Manager
+
+### Definition & Purpose
+Secret Manager stores, versions, and controls access to secrets such as API keys, passwords, and certificates. It integrates with IAM, Cloud KMS, Cloud Run, Cloud Functions, GKE, Cloud Build, and audit logs; deployment model is fully managed secrets storage.
+
+### Exam Triggers
+- "store API keys"
+- "secret versions"
+- "access secret from Cloud Run"
+- "avoid env plaintext secrets"
+- "secret rotation"
+
+### Not to be confused with (MANDATORY)
+Cloud KMS - Secret Manager stores secrets, while KMS manages encryption keys.
+
+▎ Choose Secret Manager if applications need secure secret storage, versioning, and runtime retrieval / Choose Cloud KMS if you need customer-managed encryption keys or cryptographic operations.
+
+### Security & FAQ Insights
+- Grant secret accessor narrowly to runtime service accounts.
+- Use versions for rotation and rollback.
+- Audit secret access with Cloud Audit Logs.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Identity-Aware Proxy (IAP)
+
+### Definition & Purpose
+IAP provides identity-aware access to web apps and TCP forwarding to VMs without a traditional VPN or bastion. It integrates with IAM, Cloud Load Balancing, OAuth, Chrome Enterprise/BeyondCorp patterns, and SSH/RDP TCP forwarding; deployment model is fully managed zero-trust access proxy.
+
+### Exam Triggers
+- "access app without VPN"
+- "SSH to VM without public IP"
+- "BeyondCorp"
+- "IAP TCP forwarding"
+- "identity-aware access"
+
+### Not to be confused with (MANDATORY)
+Cloud VPN - IAP grants identity-aware app/VM access, while VPN connects networks.
+
+▎ Choose Identity-Aware Proxy (IAP) if users need authenticated access to apps or VMs without broad network connectivity / Choose Cloud VPN if networks need private IP routing between environments.
+
+### Security & FAQ Insights
+- IAP relies on IAM roles for access.
+- Useful for removing public SSH/RDP exposure.
+- For web apps, IAP usually sits behind supported load balancers.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Security Command Center
+
+### Definition & Purpose
+Security Command Center centralizes security posture, threat findings, vulnerability information, compliance insights, and risk management. It integrates with IAM, Cloud Asset Inventory, Event Threat Detection, Security Health Analytics, Sensitive Data Protection, and SIEM exports; deployment model is managed security posture platform.
+
+### Exam Triggers
+- "central security dashboard"
+- "misconfiguration findings"
+- "threat detection"
+- "Security Health Analytics"
+- "organization-wide security posture"
+
+### Not to be confused with (MANDATORY)
+Cloud Monitoring - SCC focuses on security posture/threats, while Monitoring focuses on operational metrics and alerts.
+
+▎ Choose Security Command Center if you need centralized security findings, posture management, or threat visibility / Choose Cloud Monitoring if you need performance metrics, uptime checks, or operational alerting.
+
+### Security & FAQ Insights
+- Premium/Enterprise tiers add advanced detection and risk capabilities.
+- Use organization-level activation for broad coverage.
+- Findings can feed SIEM/SOAR workflows.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Sensitive Data Protection
+
+### Definition & Purpose
+Sensitive Data Protection discovers, classifies, masks, tokenizes, and de-identifies sensitive data such as PII across datasets and streams. It integrates with Cloud Storage, BigQuery, Pub/Sub, Dataflow, Cloud Functions, and Security Command Center; deployment model is fully managed data inspection and de-identification.
+
+### Exam Triggers
+- "detect PII"
+- "de-identify data"
+- "tokenize sensitive data"
+- "DLP scan BigQuery or Cloud Storage"
+- "mask data before sharing"
+
+### Not to be confused with (MANDATORY)
+VPC Service Controls - Sensitive Data Protection identifies/protects sensitive content, while VPC Service Controls creates service perimeters to reduce exfiltration.
+
+▎ Choose Sensitive Data Protection if you need to discover, classify, mask, tokenize, or de-identify sensitive data / Choose VPC Service Controls if you need perimeter controls around supported services/projects.
+
+### Security & FAQ Insights
+- Templates standardize inspection and de-identification rules.
+- Can be used in streaming pipelines through Dataflow/Pub/Sub.
+- Does not replace IAM or perimeter controls.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Assured Workloads
+
+### Definition & Purpose
+Assured Workloads creates governed environments with compliance controls such as data residency, personnel access restrictions, and encryption settings for regulated workloads. It integrates with folders, IAM, Organization Policy, Cloud KMS, Access Transparency, and compliance regimes; deployment model is managed compliance environment orchestration.
+
+### Exam Triggers
+- "regulated workload"
+- "data residency"
+- "FedRAMP IL4 compliance controls"
+- "support personnel restrictions"
+- "compliance folder"
+
+### Not to be confused with (MANDATORY)
+Organization Policy - Assured Workloads packages compliance controls into governed environments, while Organization Policy is the individual constraint mechanism.
+
+▎ Choose Assured Workloads if you need a managed compliance environment for regulated workloads / Choose Organization Policy if you need to configure individual resource constraints yourself.
+
+### Security & FAQ Insights
+- Controls are applied at folder/workload environment level.
+- Available regimes and regions vary.
+- Often paired with Access Transparency and Access Approval.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Access Transparency
+
+### Definition & Purpose
+Access Transparency logs actions taken by Google personnel when they access customer resources for support or operations. It integrates with Cloud Logging, Assured Workloads, IAM, and compliance workflows; deployment model is managed audit visibility.
+
+### Exam Triggers
+- "logs of Google staff access"
+- "support personnel access audit"
+- "transparency logs"
+- "compliance evidence"
+
+### Not to be confused with (MANDATORY)
+Access Approval - Access Transparency records Google access, while Access Approval requires customer approval before certain access occurs.
+
+▎ Choose Access Transparency if you need audit logs showing when Google personnel accessed data/resources / Choose Access Approval if you need to approve or reject Google personnel access before it occurs.
+
+### Security & FAQ Insights
+- Useful for compliance and regulator evidence.
+- Availability depends on edition/service support.
+- It does not itself block access; it records it.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Access Approval
+
+### Definition & Purpose
+Access Approval lets customers explicitly approve or reject Google personnel access requests before access to supported resources. It integrates with IAM, notifications, Cloud KMS signing keys, Assured Workloads, and Access Transparency; deployment model is managed access governance.
+
+### Exam Triggers
+- "approve Google support access"
+- "customer approval before access"
+- "regulated support workflow"
+- "Access Approval request"
+
+### Not to be confused with (MANDATORY)
+Access Transparency - Access Approval gates access before it happens, while Access Transparency logs access after it happens.
+
+▎ Choose Access Approval if you need explicit customer approval before Google personnel can access supported resources / Choose Access Transparency if you only need audit visibility into Google personnel access.
+
+### Security & FAQ Insights
+- Often used with Assured Workloads for regulated environments.
+- Approval workflows must be operationally staffed to avoid support delays.
+- Does not replace IAM for customer principals.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Cloud Monitoring
+
+### Definition & Purpose
+Cloud Monitoring collects metrics, dashboards, uptime checks, alerting policies, and SLO monitoring for Google Cloud and hybrid systems. It integrates with Cloud Logging, Managed Service for Prometheus, Cloud Trace, Error Reporting, Pub/Sub notifications, and Ops Agent; deployment model is fully managed observability.
+
+### Exam Triggers
+- "metrics dashboards alerts"
+- "uptime checks"
+- "SLO monitoring"
+- "Managed Service for Prometheus"
+- "Ops Agent"
+
+### Not to be confused with (MANDATORY)
+Cloud Logging - Monitoring focuses on metrics and alerts, while Logging stores and routes logs.
+
+▎ Choose Cloud Monitoring if you need metrics, dashboards, uptime checks, alerting, or SLOs / Choose Cloud Logging if you need log collection, search, sinks, or audit logs.
+
+### Security & FAQ Insights
+- Alert policies can notify channels or trigger incident workflows.
+- Use SLO/error budget concepts for reliability scenarios.
+- Ops Agent collects VM system/application telemetry.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Cloud Logging
+
+### Definition & Purpose
+Cloud Logging stores, searches, routes, and exports platform, audit, network, and application logs. It integrates with Cloud Monitoring, Log Router sinks, BigQuery, Cloud Storage, Pub/Sub, Cloud Audit Logs, and Error Reporting; deployment model is fully managed logging.
+
+### Exam Triggers
+- "central logs"
+- "log sinks"
+- "export logs to BigQuery"
+- "Cloud Audit Logs"
+- "Log Router"
+
+### Not to be confused with (MANDATORY)
+Cloud Monitoring - Logging stores events/log entries, while Monitoring turns metrics into dashboards and alerts.
+
+▎ Choose Cloud Logging if you need log collection, audit log analysis, retention, routing, or exports / Choose Cloud Monitoring if you need metrics dashboards and alert policies.
+
+### Security & FAQ Insights
+- Admin Activity audit logs are generally always on; Data Access logs often need explicit enablement.
+- Aggregated sinks route logs at folder/org level.
+- Log volume and retention affect cost.
+
+### 🔥 Exam Weight
+⭐⭐⭐⭐ — High-value exam topic; commonly appears in scenario questions and migration/security traps.
+
+---
+
+## Cloud Trace and Error Reporting
+
+### Definition & Purpose
+Cloud Trace collects distributed request traces and latency data, while Error Reporting aggregates application exceptions. They integrate with Cloud Run, App Engine, GKE, Compute Engine, Cloud Logging, and OpenTelemetry; deployment model is managed application diagnostics.
+
+### Exam Triggers
+- "distributed tracing"
+- "latency breakdown"
+- "application exceptions"
+- "Error Reporting groups stack traces"
+- "OpenTelemetry"
+
+### Not to be confused with (MANDATORY)
+Cloud Monitoring - Trace/Error Reporting diagnose request paths and exceptions, while Monitoring provides broad metrics/alerts.
+
+▎ Choose Cloud Trace and Error Reporting if you need request-level tracing or grouped exception diagnostics / Choose Cloud Monitoring if you need general metrics, uptime checks, dashboards, or SLO alerts.
+
+### Security & FAQ Insights
+- Instrumentation may be required depending on runtime.
+- Trace sampling controls volume.
+- Useful for root cause analysis and performance optimization.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+# Part 7 - DevOps, API Management, Cost & Governance
+
+## Cloud Build
+
+### Definition & Purpose
+Cloud Build is a serverless CI/CD service that runs build steps from source triggers or build configs. It integrates with Artifact Registry, Cloud Deploy, GitHub/Cloud Source Repositories, Secret Manager, Cloud Run, GKE, and IAM; deployment model is fully managed build execution.
+
+### Exam Triggers
+- "cloudbuild.yaml"
+- "serverless CI"
+- "build container image"
+- "Git trigger"
+- "deploy from pipeline"
+
+### Not to be confused with (MANDATORY)
+Cloud Deploy - Cloud Build builds/tests artifacts, while Cloud Deploy manages progressive delivery to runtimes.
+
+▎ Choose Cloud Build if you need CI builds, tests, image creation, or automation steps / Choose Cloud Deploy if you need release promotion and deployment pipeline management.
+
+### Security & FAQ Insights
+- Use private pools for network isolation or custom worker environments.
+- Service account permissions determine what builds can deploy.
+- Store artifacts in Artifact Registry.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Artifact Registry
+
+### Definition & Purpose
+Artifact Registry stores container images and language packages such as Maven, npm, Python, and apt repositories. It integrates with Cloud Build, GKE, Cloud Run, Binary Authorization, IAM, vulnerability scanning, and regional repositories; deployment model is fully managed artifact repository.
+
+### Exam Triggers
+- "container image registry"
+- "Maven npm Python packages"
+- "replace Container Registry"
+- "store build artifacts"
+- "vulnerability scanning"
+
+### Not to be confused with (MANDATORY)
+Cloud Storage - Artifact Registry stores deployable software artifacts with package semantics, while Cloud Storage stores general objects.
+
+▎ Choose Artifact Registry if you need a managed repository for container images or packages / Choose Cloud Storage if you need generic object storage or data lake files.
+
+### Security & FAQ Insights
+- Prefer Artifact Registry over legacy Container Registry.
+- Repository location affects latency/residency.
+- Use IAM and vulnerability scanning for supply-chain security.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Cloud Deploy
+
+### Definition & Purpose
+Cloud Deploy manages continuous delivery pipelines, promotion stages, approvals, and rollouts to GKE and Cloud Run. It integrates with Skaffold, Cloud Build, Artifact Registry, GKE, Cloud Run, IAM, and audit logs; deployment model is fully managed delivery orchestration.
+
+### Exam Triggers
+- "progressive delivery"
+- "promote dev staging prod"
+- "manual approval"
+- "deploy to GKE or Cloud Run"
+- "release pipeline"
+
+### Not to be confused with (MANDATORY)
+Cloud Build - Cloud Deploy releases artifacts through environments, while Cloud Build creates/tests artifacts.
+
+▎ Choose Cloud Deploy if you need controlled delivery, promotions, approvals, and rollout management / Choose Cloud Build if you need CI/build/test execution rather than release promotion.
+
+### Security & FAQ Insights
+- Uses delivery pipelines and targets.
+- Manual approvals support governance gates.
+- Works naturally with Cloud Run and GKE deployment flows.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Infrastructure Manager
+
+### Definition & Purpose
+Infrastructure Manager automates Terraform-based infrastructure provisioning on Google Cloud. It integrates with Terraform configurations, Cloud Storage/state concepts, IAM, Cloud Build-style automation, and audit logging; deployment model is managed IaC deployment service.
+
+### Exam Triggers
+- "Terraform on Google Cloud"
+- "managed infrastructure deployment"
+- "versioned IaC"
+- "provision repeatable environments"
+
+### Not to be confused with (MANDATORY)
+Config Connector - Infrastructure Manager runs Terraform deployments, while Config Connector manages GCP resources as Kubernetes custom resources.
+
+▎ Choose Infrastructure Manager if teams want managed Terraform-based infrastructure provisioning / Choose Config Connector if teams want GitOps/Kubernetes-native resource management through CRDs.
+
+### Security & FAQ Insights
+- Terraform is the expected modern IaC answer more often than Deployment Manager.
+- Least-privilege deployment service accounts matter.
+- State and drift governance should be planned.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Config Connector
+
+### Definition & Purpose
+Config Connector lets teams manage Google Cloud resources as Kubernetes custom resources. It integrates with GKE, IAM service accounts, Config Sync/GitOps, and many Google Cloud APIs; deployment model is Kubernetes-native declarative resource management.
+
+### Exam Triggers
+- "manage GCP resources as Kubernetes CRDs"
+- "GitOps infrastructure"
+- "Config Connector"
+- "Kubernetes-native IaC"
+
+### Not to be confused with (MANDATORY)
+Infrastructure Manager - Config Connector is Kubernetes/GitOps-native, while Infrastructure Manager is Terraform-based.
+
+▎ Choose Config Connector if a Kubernetes platform team wants to manage cloud resources through CRDs and GitOps / Choose Infrastructure Manager if the organization standardizes on Terraform for IaC.
+
+### Security & FAQ Insights
+- Works well with Config Sync and Policy Controller patterns.
+- Requires careful IAM for the controller service account.
+- Not the default choice for non-Kubernetes teams.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Apigee
+
+### Definition & Purpose
+Apigee is a full lifecycle API management platform for exposing, securing, transforming, monetizing, and analyzing enterprise APIs. It integrates with IAM/identity providers, Cloud Load Balancing, Cloud Armor, analytics, developer portals, and hybrid/runtime options; deployment model is managed enterprise API management.
+
+### Exam Triggers
+- "enterprise API management"
+- "developer portal"
+- "monetize APIs"
+- "API analytics quotas transformation"
+- "large API program"
+
+### Not to be confused with (MANDATORY)
+API Gateway - Apigee is enterprise API management, while API Gateway is lightweight managed API fronting for serverless/backends.
+
+▎ Choose Apigee if you need enterprise API governance, monetization, portals, analytics, or complex policies / Choose API Gateway if you need a simpler managed API endpoint for Cloud Run/Functions or basic auth/throttling.
+
+### Security & FAQ Insights
+- Apigee is broader and more complex than simple gateway use cases.
+- Hybrid options support enterprise deployment constraints.
+- Common trap: do not choose API Gateway for full API product monetization/governance.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## API Gateway
+
+### Definition & Purpose
+API Gateway provides lightweight managed API fronting for services such as Cloud Run, Cloud Functions, and App Engine. It integrates with OpenAPI specs, IAM, API keys/JWTs, Cloud Logging, and serverless backends; deployment model is fully managed API gateway.
+
+### Exam Triggers
+- "simple managed API"
+- "OpenAPI config"
+- "front Cloud Run or Cloud Functions"
+- "API key JWT"
+- "serverless API"
+
+### Not to be confused with (MANDATORY)
+Apigee - API Gateway is lightweight API fronting, while Apigee is enterprise API management with portals, analytics, and monetization.
+
+▎ Choose API Gateway if you need a simple managed API endpoint for serverless/backend services / Choose Apigee if you need enterprise API lifecycle management, developer portals, or monetization.
+
+### Security & FAQ Insights
+- Good for simpler APIs and serverless exposure.
+- Use Cloud Armor/load balancing where deeper edge protection is required.
+- Not a replacement for full Apigee governance.
+
+### 🔥 Exam Weight
+⭐⭐ — Lower-frequency topic; mainly tested through governance, cost, or specialized architecture constraints.
+
+---
+
+## Cloud Billing and Budgets
+
+### Definition & Purpose
+Cloud Billing manages billing accounts, project billing links, budgets, alerts, exports, and cost visibility. It integrates with Resource Manager, BigQuery billing export, labels, budgets, Cloud Monitoring notifications, and Recommender; deployment model is fully managed billing control plane.
+
+### Exam Triggers
+- "billing account linked to projects"
+- "budgets and alerts"
+- "BigQuery billing export"
+- "chargeback showback"
+- "cost by labels"
+
+### Not to be confused with (MANDATORY)
+Recommender - Billing/Budgets reports and alerts on spend, while Recommender suggests concrete optimizations.
+
+▎ Choose Cloud Billing and Budgets if you need spend visibility, billing exports, budgets, or cost allocation / Choose Recommender if you need automated rightsizing or best-practice recommendations.
+
+### Security & FAQ Insights
+- Billing accounts can pay for multiple projects.
+- Labels support cost allocation but must be applied consistently.
+- Budgets alert but do not automatically redesign architecture.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+## Recommender
+
+### Definition & Purpose
+Recommender provides machine-generated recommendations for cost, performance, reliability, security, and IAM least privilege. It integrates with Compute Engine rightsizing, IAM recommendations, idle resource detection, Security Command Center, and console/API workflows; deployment model is fully managed recommendation engine.
+
+### Exam Triggers
+- "rightsizing recommendations"
+- "idle VM disks"
+- "IAM recommender"
+- "optimize cost performance security"
+- "automated recommendations"
+
+### Not to be confused with (MANDATORY)
+Cloud Billing and Budgets - Recommender suggests actions, while Billing/Budgets tracks spend and alerts on thresholds.
+
+▎ Choose Recommender if you need optimization recommendations for resources or permissions / Choose Cloud Billing and Budgets if you need cost reporting, exports, or budget alerts.
+
+### Security & FAQ Insights
+- Review recommendations before applying in production.
+- IAM recommendations help reduce overly broad roles.
+- Use with Monitoring/Billing data for continuous optimization.
+
+### 🔥 Exam Weight
+⭐⭐⭐ — Moderate exam topic; know the main triggers, limits, and closest alternatives.
+
+---
+
+# Exam Coverage Check
+
+Coverage verified against the official Professional Cloud Architect exam areas: designing and planning cloud solution architecture; managing and provisioning infrastructure; designing for security and compliance; analyzing and optimizing technical/business processes; managing implementation; and ensuring reliability. This version explicitly covers the major PCA service families: Resource Manager/Cloud Identity/IAM/Service Accounts/Org Policy/IAM Deny; VPC/Shared VPC/Peering/NCC/Interconnect/VPN/Load Balancing/CDN/DNS/NAT/Armor/PSC/PGA/VPC Service Controls/PSA/Serverless VPC Access/firewall policies/Flow Logs; Compute Engine/MIG/GKE/Cloud Run/App Engine/Cloud Functions; Cloud Storage/Persistent Disk/Hyperdisk/Filestore/Cloud SQL/AlloyDB/Spanner/Firestore/Bigtable/Memorystore/BigQuery/Looker; Pub/Sub/Dataflow/Dataproc/Composer/Tasks/Scheduler; Storage Transfer/Transfer Appliance/Migrate to VMs/DMS; KMS/Secret Manager/IAP/SCC/Sensitive Data Protection/Assured Workloads/Access Transparency/Access Approval; Cloud Monitoring/Logging/Trace/Error Reporting/Billing/Budgets/Recommender; Cloud Build/Artifact Registry/Cloud Deploy/Infrastructure Manager/Config Connector; Apigee/API Gateway/Vertex AI.
+
+Reference: Google Cloud Professional Cloud Architect exam guide and official Google Cloud product documentation.
