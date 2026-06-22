@@ -50,8 +50,12 @@ Identify the closest AWS service that could be confused with this one, then stat
 
 ## Amazon Textract
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-An OCR and document-understanding service that extracts text, tables, forms, and structured key-value data from scanned documents and images. Use it to turn unstructured documents (PDFs, scans, photos) into structured, queryable data without building or training a custom OCR model. Standard integrations: **S3** (input documents and output JSON), **SNS/SQS** (async job completion notifications for large multi-page documents), **Lambda** (orchestrating extraction pipelines), and **Amazon A2I** (routing low-confidence extractions to human reviewers). Deployment model: fully managed serverless AI API.
+An OCR and document-understanding service that extracts printed text, handwriting, tables, forms, key-value pairs, queries, invoices/receipts, and identity-document fields from scanned documents and images. The FAQ emphasizes that Textract goes beyond OCR by preserving document structure, returning confidence scores, supporting Queries/Custom Queries, and offering specialized APIs such as Detect Document Text, Analyze Document, Analyze Expense, and Analyze ID. Standard integrations: **S3** (input/output JSON), **SNS/SQS** (async job notifications), **Lambda** (orchestration), and **Amazon A2I** (human review); deployment model: fully managed serverless AI API.
+
+**Official FAQ/reference:** https://aws.amazon.com/textract/faqs/
 
 ### Exam Triggers
 - "extract text/tables/forms from scanned documents or images"
@@ -75,8 +79,12 @@ Amazon Comprehend - Textract performs OCR/extraction (turning a document image i
 
 ## Amazon Comprehend
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-An NLP service that uses ML to extract insights from text, including sentiment, entities, key phrases, language, syntax, and PII - without training a custom NLP model. Standard integrations: **S3** (batch analysis jobs), **Lambda** (event-driven analysis), **Kinesis Data Firehose** (inline PII detection/redaction on streaming data), and **Textract** (analyzing text extracted from documents). Deployment model: fully managed serverless NLP API.
+An NLP service that uses ML to extract insights from text, including sentiment, entities, key phrases, language, syntax, topics, PII, custom classification, and custom entity recognition. The FAQ highlights voice-of-customer analytics, semantic search, and knowledge discovery as core use cases, where Comprehend indexes meaning and context rather than just keywords. Standard integrations: **S3** (batch jobs), **Lambda** (event-driven analysis), **Kinesis Data Firehose** (inline PII detection/redaction), and **Textract** (analyzing extracted document text); deployment model: fully managed serverless NLP API.
+
+**Official FAQ/reference:** https://aws.amazon.com/comprehend/faqs/
 
 ### Exam Triggers
 - "detect sentiment in customer feedback/emails"
@@ -101,8 +109,12 @@ Amazon Textract - Comprehend analyzes text that is already in digital form, whil
 
 ## Amazon Transcribe
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-An automatic speech recognition (ASR) service that converts audio and video into text, supporting both real-time streaming and asynchronous batch jobs. Standard integrations: **S3** (batch audio input/output), **Kinesis Video/Audio Streams** (real-time transcription), **Amazon Connect** (call-center transcription), and **Amazon Comprehend** (sentiment/entity analysis on the resulting transcript). Deployment model: fully managed serverless speech-to-text API.
+An automatic speech recognition (ASR) service that converts audio and video into text for both real-time streaming and asynchronous batch transcription. The FAQ separates general transcription from Transcribe Medical and stresses that medical output is not a substitute for professional review and may not fully de-identify protected health information. Standard integrations: **S3** (batch audio input/output), **Kinesis Video/Audio Streams** (real-time transcription), **Amazon Connect** (call-center transcription), and **Amazon Comprehend** (text analytics on transcripts); deployment model: fully managed serverless speech-to-text API.
+
+**Official FAQ/reference:** https://aws.amazon.com/transcribe/faqs/
 
 ### Exam Triggers
 - "transcribe call-center recordings"
@@ -128,8 +140,12 @@ Amazon Translate - Translate converts text between written languages, it does no
 
 ## Amazon Translate
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-A neural machine translation service that translates text between languages in real time or in batch, enabling localized and multilingual applications without managing translation models. Standard integrations: **S3** (batch document translation jobs), **Amazon Comprehend** (automatic source-language detection), and application-layer services (CloudFront, Lambda) for on-the-fly content localization. Deployment model: fully managed serverless neural translation API.
+A neural machine translation service that translates text and documents between languages in real time or in batch for localization and multilingual applications. The FAQ notes support for 75 languages and positions Active Custom Translation (ACT) as the built-in way to improve domain-specific terminology with parallel data without managing a custom translation model. Standard integrations: **S3** (batch document translation), **Amazon Comprehend** (language detection), and application-layer services such as **CloudFront** and **Lambda** for dynamic localization; deployment model: fully managed serverless neural translation API.
+
+**Official FAQ/reference:** https://aws.amazon.com/translate/faqs/
 
 ### Exam Triggers
 - "translate text or documents between languages"
@@ -152,8 +168,12 @@ Amazon Transcribe - Translate works on written text, never on audio. Decision cr
 
 ## Amazon Lex
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A service for building conversational interfaces (chatbots and voice bots) using the same deep learning technology as Alexa, allowing teams to build dialogue management and intent recognition without building NLU from scratch. Standard integrations: **Amazon Connect** (contact-center voice bots), **AWS Lambda** (executing business logic/fulfillment for intents), and **CloudWatch** (conversation logging). Deployment model: fully managed conversational AI service.
+A service for building conversational interfaces, chatbots, and voice bots using intent recognition, utterances, slots, prompts, and fulfillment logic. The FAQ frames Lex as a managed text and speech request service for structured bot interactions, including contact-center and self-service automation use cases. Standard integrations: **Amazon Connect** (contact-center bots), **AWS Lambda** (intent fulfillment), **Amazon Cognito** (user authentication), and **CloudWatch/S3** (conversation logs); deployment model: fully managed conversational AI service.
+
+**Official FAQ/reference:** https://aws.amazon.com/lex/faqs/
 
 ### Exam Triggers
 - "build a chatbot or voice bot"
@@ -177,8 +197,12 @@ Amazon Q Business / Bedrock Agents - Lex manages structured, intent/slot-based c
 
 ## Amazon Kendra
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-An intelligent enterprise search service powered by ML that answers natural-language questions across multiple connected data repositories using semantic search rather than keyword matching. Standard integrations: **40+ built-in connectors** (S3, SharePoint, Salesforce, Confluence, etc.) and as a retrieval backend for **Amazon Q Business**. Deployment model: fully managed enterprise search service.
+An intelligent enterprise search service powered by ML that lets users ask natural-language questions across corporate content repositories and receive precise answers, passages, or ranked documents. The FAQ emphasizes search over manuals, research reports, FAQs, HR documentation, customer-service guides, and systems such as **S3**, SharePoint, Salesforce, ServiceNow, RDS databases, and OneDrive. Standard integrations include 30+ built-in connectors and optional use as a retrieval backend for **Amazon Q Business**; deployment model: fully managed enterprise search service.
+
+**Official FAQ/reference:** https://aws.amazon.com/kendra/faqs/
 
 ### Exam Triggers
 - "natural-language search/Q&A across internal documents"
@@ -201,8 +225,12 @@ Amazon Q Business - Q Business is a full generative AI assistant that synthesize
 
 ## Amazon Personalize
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A managed service that builds real-time recommendation and personalization models using the same ML technology as Amazon.com, without requiring in-house ML expertise. Standard integrations: **S3** (historical training data), **Kinesis** (real-time interaction event streams), and **Amazon Pinpoint** (delivering personalized campaigns based on recommendations). Deployment model: fully managed personalization service.
+A fully managed ML service that uses user, item, and interaction data to train private personalization models for product/content recommendations, personalized ranking, and next-best-action experiences. The FAQ stresses that it uses the same ML technology as Amazon.com, supports real-time personalization from live behavior, and can start with use-case optimized recommenders or configurable custom resources. Standard integrations: **S3** (historical datasets), **Kinesis** (real-time interaction events), and **Amazon Pinpoint** (personalized campaigns); deployment model: fully managed personalization service.
+
+**Official FAQ/reference:** https://aws.amazon.com/personalize/faqs/
 
 ### Exam Triggers
 - "show personalized product/content recommendations"
@@ -226,8 +254,12 @@ Amazon Forecast - Forecast predicts future numeric values (demand, inventory) ov
 
 ## Amazon Forecast
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A managed time-series forecasting service that uses ML to predict future values (demand, inventory, resource needs) from historical data, without building and maintaining custom time-series models. Standard integration: **S3** (historical data input). Deployment model: fully managed forecasting service for existing customers.
+A managed time-series forecasting service that used ML to predict future numeric values such as demand, inventory, staffing, or capacity from historical time-series data. The current FAQ/exam-relevant caveat is lifecycle positioning: Forecast remains relevant for existing customers, while AWS directs new no-code forecasting use cases toward SageMaker Canvas. Standard integration: **S3** for historical target time series, related time series, and item metadata inputs; deployment model: fully managed forecasting service for existing customers.
+
+**Official FAQ/reference:** https://aws.amazon.com/forecast/
 
 ### Exam Triggers
 - "predict future demand/inventory from historical time-series data"
@@ -249,8 +281,12 @@ SageMaker Canvas - Amazon Forecast is **no longer onboarding new customers**; AW
 
 ## Amazon Bedrock
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-A fully managed, serverless service providing access to industry-leading foundation models (FMs) via a unified API (Anthropic, Meta, Mistral AI, Cohere, Stability AI, and the proprietary Amazon Nova/Titan families), without managing any underlying infrastructure. Standard integrations: **IAM** (access control), **KMS** (encryption), **AWS PrivateLink** (private VPC access), **CloudTrail** (API auditability), **Bedrock Knowledge Bases**, and **Bedrock Agents**. Deployment model: fully managed serverless foundation-model service.
+A fully managed, serverless service providing unified API access to foundation models from Amazon and third-party providers without provisioning model-hosting infrastructure. The FAQ emphasizes model choice, serverless inference, data isolation, model customization, agents, knowledge bases, guardrails, model evaluation, and Bedrock Data Automation for multimodal extraction workflows. Standard integrations: **IAM**, **KMS**, **AWS PrivateLink**, **CloudTrail**, **Bedrock Knowledge Bases**, **Bedrock Agents**, and **Guardrails**; deployment model: fully managed serverless foundation-model service.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "access multiple foundation models through a single API without managing infrastructure"
@@ -263,7 +299,7 @@ Amazon SageMaker - SageMaker is for building, training, and hosting **custom** m
 ▎ Choose Amazon Bedrock if you need serverless API access to pre-trained foundation models without managing infrastructure / Choose Amazon SageMaker if you need to build, train, fine-tune, host, or control infrastructure for custom models.
 
 ### Security & FAQ Insights
-- Two pricing models - On-Demand (pay per token, no commitment) and Provisioned Throughput (purchased capacity units billed hourly, required for customized/fine-tuned models).
+- Five pricing models - **On-Demand** (pay per token, no commitment), **Flex Tier** (~50% discount for non-urgent workloads), **Priority Tier** (~75% premium for fastest response), **Batch Inference** (~50% cheaper for asynchronous bulk jobs), and **Provisioned Throughput** (capacity units billed hourly, required for some customized model families).
 - AWS does not use customer prompts/outputs to train the underlying base models (data isolation).
 - PrivateLink enables VPC-only access without traversing the public internet; CloudTrail logs every API call for auditability; KMS encrypts custom model artifacts.
 
@@ -274,8 +310,12 @@ Amazon SageMaker - SageMaker is for building, training, and hosting **custom** m
 
 ## Bedrock Knowledge Bases
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A fully managed feature implementing end-to-end RAG (Retrieval-Augmented Generation): it automates document chunking, generates embeddings, stores them in a vector database, and fetches contextual snippets to ground an LLM's answers in your own data. Standard integrations: **S3** (source documents), supported vector stores - **Amazon OpenSearch Serverless**, **Amazon Aurora (pgvector)**, **Amazon RDS for PostgreSQL**, and **Amazon Neptune Analytics** (for GraphRAG) - and **Bedrock Agents** (as a tool for retrieval). Deployment model: fully managed Bedrock feature backed by customer-selected vector stores.
+A fully managed RAG (Retrieval-Augmented Generation) feature that ingests enterprise content, chunks documents, generates embeddings, stores vectors, and retrieves relevant context to ground foundation-model responses. The FAQ connects Knowledge Bases to Bedrock Data Automation standard output for documents and multimodal extraction, making it the managed path when source content must be prepared and grounded without building a custom embeddings pipeline. Standard integrations: **S3** sources, vector stores such as **Amazon OpenSearch Serverless**, **Aurora/RDS PostgreSQL pgvector**, **Neptune Analytics** for GraphRAG, and **Bedrock Agents**; deployment model: fully managed Bedrock feature backed by customer-selected vector stores.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "ground LLM answers in company documents"
@@ -298,8 +338,12 @@ Amazon Kendra - Kendra is a general-purpose search/retrieval engine returning ra
 
 ## Bedrock Agents
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-Orchestration components capable of multi-step reasoning, automatic task planning, calling external APIs (via AWS Lambda), and querying Knowledge Bases to execute complex business workflows autonomously. Standard integrations: **AWS Lambda** (Action Groups - the APIs/functions the agent can call), **Bedrock Knowledge Bases** (factual lookup), and **Bedrock Guardrails** (policy enforcement on agent input/output). Deployment model: fully managed Bedrock orchestration feature.
+Orchestration components that use a foundation model to interpret user requests, plan multi-step tasks, call tools, and return a final answer or action. The FAQ positions Agents as the Bedrock feature for executing business workflows by combining instructions, action groups, APIs, Lambda functions, optional knowledge bases, and session context. Standard integrations: **AWS Lambda** action groups, **Bedrock Knowledge Bases**, OpenAPI schemas, **IAM** execution roles, and **Bedrock Guardrails**; deployment model: fully managed Bedrock orchestration feature.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "automate a complex multi-step business workflow"
@@ -322,8 +366,12 @@ Bedrock Knowledge Bases - Knowledge Bases provide passive retrieval to ground a 
 
 ## Bedrock Guardrails
 
+**Scope:** `GOVERN` · `DEPLOY`
+
 ### Definition & Purpose
-An independent evaluation layer applied to user prompts (inputs) and model responses (outputs) to filter unwanted content and enforce Responsible AI policies. Standard integrations: applies to any **Bedrock model invocation**, **Bedrock Agents**, and **Bedrock Knowledge Bases** (via grounding/relevance checks on RAG responses). Deployment model: fully managed Bedrock safety and policy layer.
+An independent policy layer that evaluates prompts and model responses to enforce responsible-AI controls before, during, or after Bedrock model interactions. The FAQ describes configurable guardrail policies for denied topics, content filters, word filters, sensitive-information handling, contextual grounding, and relevance checks, reusable across supported models and agents. Standard integrations: **Bedrock model invocations**, **Bedrock Agents**, **Knowledge Bases/RAG grounding**, **IAM**, and audit/logging controls; deployment model: fully managed Bedrock safety and policy layer.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "prevent a chatbot from discussing certain topics"
@@ -346,8 +394,12 @@ Amazon Comprehend (PII detection) - Comprehend is a general-purpose text-analysi
 
 ## Bedrock Fine-tuning
 
+**Scope:** `TUNE`
+
 ### Definition & Purpose
-A customization method that adapts a foundation model using **labeled prompt-response pairs** for a specific task, improving accuracy and consistency on that task. Standard integrations: **S3** (training data storage), **KMS** (encryption of training artifacts). Deployment model: fully managed Bedrock model-customization workflow served through Provisioned Throughput.
+A customization method that adapts a supported foundation model using labeled prompt-response examples to improve task-specific accuracy, tone, style, or output format. The FAQ distinguishes fine-tuning from prompt engineering and continued pre-training: fine-tuning uses supervised examples and the resulting custom model is private to the customer. Standard integrations: **S3** (training/validation data), **KMS** (artifact encryption), IAM permissions, and **Provisioned Throughput** for serving customized models; deployment model: fully managed Bedrock model-customization workflow.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "improve a model's accuracy/consistency on a specific task using your own labeled examples"
@@ -359,7 +411,7 @@ Bedrock Continued Pre-training - Continued Pre-training uses large volumes of **
 ▎ Choose Bedrock Fine-tuning if you have labeled prompt-response examples and want task-specific behavior or output format consistency / Choose Bedrock Continued Pre-training if you have a large unlabeled domain corpus and want to inject broad vocabulary or domain knowledge.
 
 ### Security & FAQ Insights
-- Exam trap - any fine-tuned model **must** be served via Provisioned Throughput, never On-Demand.
+- Exam trap - fine-tuned models generally require Provisioned Throughput, but **Amazon Nova fine-tuned models support On-Demand inference** (pay per token, no commitment required). Older model families (Titan, etc.) still require Provisioned Throughput.
 - Training data is stored encrypted in S3 via KMS, and the resulting fine-tuned model weights remain private to the customer's account.
 
 ### 🔥 Exam Weight
@@ -369,8 +421,12 @@ Bedrock Continued Pre-training - Continued Pre-training uses large volumes of **
 
 ## Bedrock Continued Pre-training
 
+**Scope:** `TUNE`
+
 ### Definition & Purpose
-A customization method that further trains a base foundation model on large volumes of **unlabeled** domain-specific text, injecting deep domain knowledge (vocabulary, style, facts) before any task-specific fine-tuning. Standard integration: **S3** (large unlabeled corpus storage). Deployment model: fully managed Bedrock model-customization workflow served through Provisioned Throughput.
+A customization method that continues training a supported foundation model on large volumes of unlabeled domain-specific text to inject vocabulary, style, and broad domain knowledge. The FAQ positions continued pre-training as a different customization path from fine-tuning because it changes domain familiarity before any supervised task-specific tuning. Standard integrations: **S3** for the unlabeled corpus, **KMS** for artifacts, IAM controls, and **Provisioned Throughput** for serving the resulting custom model; deployment model: fully managed Bedrock model-customization workflow.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "inject domain-specific vocabulary/knowledge into a model before fine-tuning"
@@ -382,7 +438,7 @@ Bedrock Fine-tuning - Fine-tuning requires labeled prompt-response pairs for a s
 ▎ Choose Bedrock Continued Pre-training if you have large volumes of unlabeled domain text and need broad domain adaptation before task-specific tuning / Choose Bedrock Fine-tuning if you have labeled input/output examples for a specific task or response style.
 
 ### Security & FAQ Insights
-- Exam trap - a continued pre-trained model must also be served via Provisioned Throughput, not On-Demand.
+- Exam trap - continued pre-trained models generally require Provisioned Throughput, but **Amazon Nova continued pre-trained models support On-Demand inference**. Older model families (Titan, etc.) still require Provisioned Throughput.
 - The resulting model remains private to the customer's account.
 
 ### 🔥 Exam Weight
@@ -392,8 +448,12 @@ Bedrock Fine-tuning - Fine-tuning requires labeled prompt-response pairs for a s
 
 ## Bedrock Custom Model Import
 
+**Scope:** `DEPLOY`
+
 ### Definition & Purpose
-A feature that brings externally trained open-source models (e.g., Llama, Mistral) into Bedrock to be served through its unified, serverless API, with no infrastructure to manage. Standard integration: works alongside native Bedrock models within the same unified API, billing, and scaling model. Deployment model: Bedrock-managed serverless serving for supported imported model architectures.
+A feature that imports supported externally trained model weights into Bedrock so they can be invoked through Bedrock APIs and governed with Bedrock security controls. The FAQ/exam point is that import is not arbitrary hosting: only supported architectures and packaging formats qualify, and the imported model runs as a private Bedrock custom model rather than a SageMaker endpoint. Standard integrations: Bedrock unified invocation APIs, IAM, KMS, CloudTrail, and Bedrock operational controls; deployment model: Bedrock-managed serverless serving for supported imported model architectures.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "run your own or a third-party open-source model within Bedrock's serverless environment"
@@ -405,7 +465,7 @@ SageMaker JumpStart - JumpStart deploys open-source models to a **self-managed S
 ▎ Choose Bedrock Custom Model Import if you want an externally trained supported model served through Bedrock serverless APIs and Bedrock security controls / Choose SageMaker JumpStart if you want to deploy an open-source model to customer-managed SageMaker endpoints with full infrastructure control.
 
 ### Security & FAQ Insights
-- Only supports specific open-source architectures (e.g., Llama, Mistral, Mixtral, Flan-T5) - not arbitrary custom architectures.
+- Only supports specific open-source architectures — not arbitrary custom architectures. Supported families include Llama 2/3/3.1/3.2/3.3, Mistral, Mixtral, Flan (T5-based), Qwen2/2.5/3, GPTBigCode, IBM Granite, and others; the list expands over time.
 - Imported models are billed and scaled exactly like other Bedrock models.
 
 ### 🔥 Exam Weight
@@ -415,8 +475,12 @@ SageMaker JumpStart - JumpStart deploys open-source models to a **self-managed S
 
 ## Bedrock Model Distillation
 
+**Scope:** `TUNE`
+
 ### Definition & Purpose
-A customization method that trains a smaller "student" model to replicate the behavior of a larger "teacher" model, using the teacher's outputs as training data, to reduce inference latency and cost while retaining much of the teacher's quality. Deployment model: fully managed Bedrock customization workflow.
+A customization method that creates a smaller, lower-cost "student" model by training it to imitate the outputs of a larger "teacher" model. The FAQ/exam value is cost-performance optimization for high-volume generative AI workloads where some quality tradeoff is acceptable in exchange for lower latency and inference cost. Standard workflow uses teacher-generated responses as training data and produces a private optimized model; deployment model: fully managed Bedrock customization workflow.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "reduce inference latency/cost for a high-volume application while retaining quality"
@@ -438,8 +502,12 @@ Bedrock Fine-tuning - Fine-tuning adapts a model to a task using **your own labe
 
 ## Bedrock Model Evaluation
 
+**Scope:** `EVALUATE`
+
 ### Definition & Purpose
-A managed interface to score and compare different FMs (or different versions of the same fine-tuned model) against target quality baselines, and more broadly to measure whether an FM-powered application reliably solves the business problem. Standard integration: works with any model accessible via Bedrock, using built-in or custom datasets. Deployment model: fully managed Bedrock evaluation workflow.
+A managed capability to evaluate, score, and compare foundation models, customized models, or model-powered applications against quality, safety, robustness, and business-fit criteria. The FAQ separates automatic evaluation with curated or customer datasets from human evaluation workflows where internal teams or AWS-managed workers judge subjective criteria. Standard integrations: Bedrock-accessible models, built-in/custom datasets, metrics such as ROUGE/BLEU/BERTScore/toxicity, and human review workflows; deployment model: fully managed Bedrock evaluation workflow.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "objectively compare candidate foundation models"
@@ -463,8 +531,12 @@ SageMaker Clarify - Clarify evaluates **bias and explainability** for custom ML 
 
 ## Amazon Nova Family
 
+**Scope:** `CONSUME`
+
 ### Definition & Purpose
-Amazon's family of multimodal foundation models available through Amazon Bedrock, providing a range of proprietary FMs covering text and media generation at different cost/performance levels. Standard integration: accessed like any other model through the **Bedrock unified API**, with the same IAM/KMS/PrivateLink security model. Deployment model: fully managed Amazon foundation models accessed through Bedrock serverless APIs.
+Amazon's proprietary multimodal foundation-model family available through Bedrock, spanning low-cost/low-latency text models, more capable reasoning models, and media-generation models. The FAQ/exam relevance is cost-performance selection inside Bedrock: Nova Micro/Lite/Pro/Premier cover text tiers, while Nova Canvas and Nova Reel cover image and video generation. Standard integration: Bedrock unified APIs with the same **IAM**, **KMS**, **PrivateLink**, CloudTrail, guardrail, and evaluation controls; deployment model: fully managed Amazon foundation models accessed through Bedrock serverless APIs.
+
+**Official FAQ/reference:** https://aws.amazon.com/bedrock/faqs/
 
 ### Exam Triggers
 - "lowest-cost Amazon model for a high-volume, low-cost use case"
@@ -491,8 +563,12 @@ Amazon Titan - Titan is Amazon's older proprietary Bedrock model family, with No
 
 ## Amazon SageMaker
 
+**Scope:** `BUILD` · `TRAIN` · `TUNE` · `EVALUATE` · `DEPLOY` · `MONITOR` · `GOVERN`
+
 ### Definition & Purpose
-A fully managed service that provides the tools to build, train, and deploy custom machine learning models across every stage of the ML lifecycle, from data preparation to production monitoring, giving teams full control over building and operating custom ML models. Standard integrations: **S3** (data/artifacts), **AWS Glue/Athena** (data preparation and querying), **ECR** (custom training/inference containers), and **VPC** (network isolation for training/hosting). Deployment model: fully managed ML platform with customer-selected managed or dedicated compute.
+A fully managed ML platform for building, training, tuning, deploying, governing, and monitoring custom ML models and foundation-model workloads. The FAQ now frames SageMaker as a unified AI and analytics experience spanning SageMaker Unified Studio, SageMaker AI, Data and AI Governance, and a lakehouse architecture across S3 data lakes, Redshift warehouses, Glue/Lake Formation catalogs, and federated sources. Standard integrations: **S3**, **Glue/Athena/Redshift/EMR**, **ECR**, **VPC**, **IAM**, **KMS**, and **CloudWatch**; deployment model: fully managed ML platform with customer-selected managed or dedicated compute.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/faqs/
 
 ### Exam Triggers
 - "train a custom model on proprietary/transaction data"
@@ -515,8 +591,12 @@ Amazon Bedrock - Bedrock provides serverless API consumption of **pre-trained** 
 
 ## SageMaker Unified Studio
 
+**Scope:** `BUILD`
+
 ### Definition & Purpose
-A single, web-based interface that unifies SageMaker's ML tools with data engineering, data analytics (Athena, Redshift, EMR, Glue), and generative AI capabilities into one collaborative workspace, governed through Amazon DataZone. Standard integrations: **Amazon DataZone** (project-based governance/access control), and previously separate consoles (SageMaker, Glue, Athena, Redshift, EMR). Deployment model: fully managed web-based workspace.
+A single web-based workspace that unifies data processing, SQL analytics, ML, and generative AI application development across AWS analytics and AI services. The FAQ specifically lists access from Unified Studio to Athena, AWS Glue, Amazon EMR, Amazon MWAA, Redshift, SageMaker AI, and Amazon Bedrock, with governance through SageMaker Catalog built on Amazon DataZone. Standard integrations: **Amazon DataZone**, **Glue**, **Athena**, **Redshift**, **EMR**, **MWAA**, **SageMaker AI**, and **Bedrock**; deployment model: fully managed web-based workspace.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/faqs/
 
 ### Exam Triggers
 - "single entry point for data and ML teams to discover data, build pipelines, and train models"
@@ -537,8 +617,12 @@ SageMaker Studio - Studio is the ML-focused IDE (notebooks, code editor, pipelin
 
 ## SageMaker Studio
 
+**Scope:** `BUILD`
+
 ### Definition & Purpose
-A unified, web-based ML IDE that integrates Jupyter notebooks, a code editor, pipelines, and experiment tracking in a single interface, giving data scientists one environment to build, train, debug, and deploy custom ML models. Standard integration: **SageMaker Pipelines** (CI/CD-style ML workflows). Deployment model: fully managed web-based ML IDE with customer-selected compute.
+A web-based ML IDE for data scientists to build, debug, train, tune, deploy, and monitor models using notebooks, code editing, experiments, and pipelines. In the FAQ's updated SageMaker positioning, Studio remains the ML-focused development environment available standalone and as part of the broader Unified Studio experience. Standard integrations: **SageMaker Pipelines**, experiments, debugger/profiler capabilities, model registry workflows, **S3**, **IAM**, and selectable compute instances; deployment model: fully managed web-based ML IDE with customer-selected compute.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "single IDE for data scientists to write code, run experiments, and track results"
@@ -560,8 +644,12 @@ SageMaker Unified Studio - Unified Studio is the broader, project-based workspac
 
 ## SageMaker Canvas
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A no-code, visual interface that lets business analysts build ML models for classification, regression, and time-series forecasting directly from tabular data, without writing any code. Standard integration: **SageMaker Model Registry** (sharing models built in Canvas with data science teams for further validation). Deployment model: fully managed no-code ML interface.
+A no-code visual interface that lets business analysts build, evaluate, and use ML models for classification, regression, and time-series forecasting from tabular data without writing code. The FAQ/exam positioning makes Canvas the forward-looking no-code forecasting path for new use cases that previously pointed to Amazon Forecast. Standard integrations: data sources such as **S3** and tabular connectors plus **SageMaker Model Registry** for collaboration with data science teams; deployment model: fully managed no-code ML interface.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "business analyst builds an ML model without writing code"
@@ -583,8 +671,12 @@ Amazon Forecast - Forecast is no longer onboarding new customers, and AWS positi
 
 ## SageMaker JumpStart
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A model hub providing one-click access to pre-trained open-source foundation models and solution templates that can be fine-tuned and deployed to **customer-managed SageMaker endpoints**, accelerating ML development by starting from pre-trained models rather than from scratch. Standard integration: deploys to **SageMaker endpoints** within the customer's VPC. Deployment model: managed SageMaker deployment to customer-controlled endpoints.
+A model hub that provides pre-trained models, foundation models, notebooks, and solution templates that can be fine-tuned and deployed through SageMaker. The FAQ/exam distinction is that JumpStart accelerates development while still deploying to SageMaker-managed/customer-controlled endpoints rather than Bedrock's serverless FM invocation layer. Standard integrations: **SageMaker endpoints**, **S3** artifacts, **IAM**, **VPC**, and training/inference jobs; deployment model: managed SageMaker deployment to customer-controlled endpoints.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "deploy a pre-trained open-source model to your own endpoint and fine-tune it"
@@ -606,8 +698,12 @@ Bedrock Custom Model Import - Custom Model Import serves an open-source model th
 
 ## SageMaker Ground Truth
 
+**Scope:** `BUILD`
+
 ### Definition & Purpose
-A data labeling service that combines human labelers (in-house teams, Amazon Mechanical Turk, or third-party vendors) with active learning to efficiently generate high-quality labeled datasets at scale. Deployment model: fully managed data-labeling workflow with human workforce options.
+A data labeling service that creates high-quality training labels using private workforces, third-party vendors, or Amazon Mechanical Turk, with optional automated labeling. The FAQ/exam value is active learning: SageMaker can automatically label easy examples and send uncertain examples to humans, reducing labeling cost and time. Standard integrations: **S3** input/output manifests, labeling workforces, SageMaker training datasets, and human review workflows; deployment model: fully managed data-labeling workflow with human workforce options.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "label thousands of images/records for training"
@@ -628,8 +724,12 @@ SageMaker Clarify - Ground Truth **creates** labeled training data, whereas Clar
 
 ## SageMaker Data Wrangler
 
+**Scope:** `BUILD`
+
 ### Definition & Purpose
-A visual data preparation tool offering hundreds of built-in, no-code transformations (imputation, encoding, normalization) for cleaning and feature engineering before training. Standard integrations: **SageMaker Feature Store** and **SageMaker Pipelines** (to operationalize and reuse transformations). Deployment model: fully managed visual data-preparation capability inside SageMaker.
+A visual data preparation capability for exploring, cleaning, transforming, and featurizing data before model training with minimal code. The FAQ/exam role is upstream data prep inside the SageMaker lifecycle: transformations can be exported and operationalized so the same preparation logic is reused in training and production pipelines. Standard integrations: **S3**, **SageMaker Feature Store**, **SageMaker Pipelines**, and notebook/Studio workflows; deployment model: fully managed visual data-preparation capability inside SageMaker.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "quickly clean, transform, and visualize data before training without custom code"
@@ -650,8 +750,12 @@ SageMaker Feature Store - Data Wrangler is the **upstream** tool used to create 
 
 ## SageMaker Feature Store
 
+**Scope:** `BUILD` · `DEPLOY`
+
 ### Definition & Purpose
-A centralized repository for storing, sharing, and serving ML features, with an **Online Store** (low-latency real-time lookups) and an **Offline Store** (S3-based, for training and batch use), ensuring consistency of features between training and inference. Standard integration: **S3** (Offline Store, integrates with data lakes and analytics tools). Deployment model: fully managed online/offline feature repository.
+A centralized feature repository for storing, sharing, discovering, and serving curated ML features consistently across training and inference. The FAQ/exam distinction is the dual-store pattern: the **Online Store** supports low-latency real-time feature lookups, while the **Offline Store** stores historical features in S3 for training, batch, and analytics. Standard integrations: **S3**, Data Wrangler/Pipelines, SageMaker training/inference, and analytics tools; deployment model: fully managed online/offline feature repository.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "ensure consistency of features between training and inference"
@@ -674,8 +778,12 @@ SageMaker Data Wrangler - Data Wrangler creates/transforms features upstream, wh
 
 ## SageMaker Training Jobs
 
+**Scope:** `TRAIN`
+
 ### Definition & Purpose
-A managed mechanism that provisions compute, runs a training script on a chosen dataset, writes the resulting model artifacts to S3, and tears down the infrastructure afterward, allowing custom models to be trained on managed, on-demand infrastructure without managing servers. Standard integrations: **S3** (data and artifacts), **ECR** (Bring-Your-Own-Container), and built-in frameworks (PyTorch, TensorFlow, etc.). Deployment model: managed ephemeral training infrastructure selected per job.
+A managed training mechanism that provisions selected compute, runs built-in algorithms or custom training code/containers, saves model artifacts to S3, and tears down infrastructure after completion. The FAQ highlights SageMaker AI as the build/train/deploy layer for ML and FMs, including managed heavy lifting around containers, frameworks, hardware, and artifacts. Standard integrations: **S3**, **ECR** for BYOC, built-in frameworks such as PyTorch/TensorFlow, **VPC**, **IAM**, **KMS**, and CloudWatch logs/metrics; deployment model: managed ephemeral training infrastructure selected per job.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "train on managed, on-demand infrastructure and pay only for training duration"
@@ -697,8 +805,12 @@ SageMaker HyperPod - Training Jobs provision ephemeral compute for a typical sin
 
 ## SageMaker HyperPod
 
+**Scope:** `TRAIN`
+
 ### Definition & Purpose
-A purpose-built, persistent and self-healing compute cluster service for large-scale distributed training of foundation models, reducing training time and operational overhead for very large models trained over weeks or months. Deployment model: dedicated persistent self-healing training clusters.
+A purpose-built cluster service for large-scale distributed training of foundation models and other very large ML workloads that run for long periods across many accelerators. The FAQ/exam value is resilience and operational simplification: HyperPod keeps persistent clusters healthy by detecting, replacing, and recovering from hardware failures so training can resume from checkpoints. Standard integrations include SageMaker training workflows, distributed training frameworks, accelerators, shared storage/checkpoints, and VPC/IAM controls; deployment model: dedicated persistent self-healing training clusters.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "train a multi-billion-parameter foundation model across hundreds of GPUs with automatic failure recovery"
@@ -720,8 +832,12 @@ SageMaker Training Jobs - Training Jobs are ephemeral, single-job compute that t
 
 ## SageMaker Automatic Model Tuning (AMT)
 
+**Scope:** `TUNE`
+
 ### Definition & Purpose
-A managed hyperparameter optimization feature that automatically searches the hyperparameter space (e.g., via Bayesian optimization) to find the configuration that maximizes a target metric, automating the search for optimal hyperparameters without manual trial and error. Deployment model: fully managed hyperparameter optimization workflow.
+A managed hyperparameter optimization feature that launches and coordinates multiple training jobs to find the configuration that optimizes a chosen objective metric. The FAQ/exam point is automation of model-performance tuning: you define ranges, metrics, and strategy, and SageMaker manages search approaches such as random, Bayesian optimization, and Hyperband. Standard integrations: SageMaker Training Jobs, **S3** training data/artifacts, CloudWatch metrics, IAM roles, and experiment tracking; deployment model: fully managed hyperparameter optimization workflow.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "automatically find the best hyperparameters"
@@ -744,8 +860,12 @@ SageMaker Clarify - AMT optimizes model **performance** via hyperparameter searc
 
 ## SageMaker Clarify
 
+**Scope:** `EVALUATE`
+
 ### Definition & Purpose
-A tool that detects statistical bias in datasets (pre-training) and model predictions (post-training), and explains individual predictions using SHAP values, supporting model fairness evaluation and explainability. Deployment model: fully managed bias and explainability analysis capability.
+A responsible-AI capability that detects bias in datasets before training and in model predictions after training, and explains predictions with feature-attribution methods such as SHAP. The FAQ/exam distinction is that Clarify performs point-in-time fairness and explainability analysis rather than continuous production drift monitoring. Standard integrations: SageMaker Processing/Training/Endpoints, **S3** datasets and reports, Model Cards, Model Monitor workflows, and governance reviews; deployment model: fully managed bias and explainability analysis capability.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "check whether a model shows bias across demographic groups"
@@ -768,8 +888,12 @@ SageMaker Model Monitor - Clarify performs **point-in-time** bias/explainability
 
 ## SageMaker Model Cards
 
+**Scope:** `GOVERN`
+
 ### Definition & Purpose
-A feature for documenting essential model information - intended use, training data, performance metrics, and risk considerations - in a centralized, structured format, supporting governance, audit, and responsible-AI documentation requirements. Deployment model: fully managed governance documentation feature.
+A governance feature for documenting model purpose, intended use, owners, training data, evaluation metrics, limitations, risks, and responsible-AI considerations in a structured record. The FAQ/exam relevance is auditability: Model Cards can capture or auto-populate SageMaker training/evaluation details and support review workflows for models built inside or outside SageMaker. Standard integrations: SageMaker training/evaluation metadata, Clarify reports, Model Registry, and governance documentation workflows; deployment model: fully managed governance documentation feature.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "document a model's intended use and limitations for governance/audit"
@@ -791,8 +915,12 @@ SageMaker Model Registry - Model Cards document descriptive, governance-oriented
 
 ## SageMaker Model Registry
 
+**Scope:** `GOVERN` · `DEPLOY`
+
 ### Definition & Purpose
-A catalog for versioning trained models and managing their approval status through deployment stages (e.g., Pending -> Approved -> Deployed), tracking model versions and controlling promotion to production through an approval workflow. Deployment model: fully managed model catalog and approval workflow.
+A model catalog for registering model packages, versions, lineage metadata, approval states, and deployment readiness across the ML lifecycle. The FAQ/exam role is controlled promotion: models can move through statuses such as Pending, Approved, or Rejected, enabling CI/CD pipelines to deploy only approved versions. Standard integrations: SageMaker Pipelines, training jobs, endpoints, Model Cards, IAM, and event-driven automation; deployment model: fully managed model catalog and approval workflow.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "version models and control promotion to production"
@@ -815,8 +943,12 @@ SageMaker Model Cards - Model Cards capture descriptive governance/responsible-A
 
 ## SageMaker Real-Time Inference
 
+**Scope:** `DEPLOY`
+
 ### Definition & Purpose
-A persistent, always-on hosted endpoint that returns predictions synchronously with low latency, used to serve models that require immediate, interactive predictions. Standard integration: supports auto-scaling and multi-model/multi-container endpoints behind a single endpoint. Deployment model: dedicated persistent managed endpoints.
+A persistent SageMaker endpoint that hosts one or more models for synchronous low-latency predictions where callers wait for an immediate response. The FAQ/exam distinction is that real-time endpoints are always provisioned and billed while running, but support production patterns such as autoscaling, variants, multi-model endpoints, and multi-container endpoints. Standard integrations: SageMaker endpoints, **CloudWatch**, **IAM**, **VPC**, **KMS**, autoscaling, and deployment variants; deployment model: dedicated persistent managed endpoints.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "interactive predictions with millisecond response times"
@@ -838,8 +970,12 @@ Amazon Bedrock - Bedrock provides serverless inference for foundation models via
 
 ## SageMaker Asynchronous Inference
 
+**Scope:** `DEPLOY`
+
 ### Definition & Purpose
-A hosting option that queues incoming requests with large payloads and processes them in the background, scaling the endpoint down to zero when idle, used to handle large payloads or long-running inference without keeping an endpoint running continuously. Standard integration: **Amazon SNS** (completion notifications), **S3** (results storage). Deployment model: managed queued endpoint that can scale to zero.
+A SageMaker inference option that accepts queued requests, processes them asynchronously, stores results in S3, and can scale the endpoint down to zero when idle. The FAQ/exam limits are the key differentiator: asynchronous inference handles much larger payloads and longer processing times than real-time inference, including payloads up to 1 GB and processing times up to one hour. Standard integrations: **S3** input/output, **Amazon SNS** notifications, autoscaling, IAM, VPC, and CloudWatch; deployment model: managed queued endpoint that can scale to zero.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "payloads up to 1 GB"
@@ -862,8 +998,12 @@ SageMaker Batch Transform - Batch Transform spins up temporary resources for **o
 
 ## SageMaker Serverless Inference
 
+**Scope:** `DEPLOY`
+
 ### Definition & Purpose
-A hosting option that automatically provisions, scales, and turns off compute capacity based on traffic, scaling to zero when there are no requests, used to serve models with intermittent or unpredictable traffic without managing or paying for idle infrastructure. Deployment model: fully managed serverless endpoint that scales to zero.
+A SageMaker inference option that automatically provisions and scales compute for endpoints with intermittent or unpredictable traffic, including scaling to zero when no requests are active. The FAQ/exam distinction is operational and cost-oriented: serverless inference removes instance management and idle capacity cost, but cold starts make it a poor fit for strict low-latency workloads. Standard integrations: SageMaker endpoints, IAM, CloudWatch, KMS, and model artifacts in S3; deployment model: fully managed serverless endpoint that scales to zero.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "intermittent or unpredictable traffic"
@@ -886,8 +1026,12 @@ SageMaker Asynchronous Inference - Asynchronous Inference targets **large payloa
 
 ## SageMaker Batch Transform
 
+**Scope:** `DEPLOY`
+
 ### Definition & Purpose
-A hosting option that spins up temporary resources to run inference on an entire dataset stored in S3, then shuts the resources down once done, used to get predictions for a large dataset all at once without needing a persistent endpoint. Standard integration: **S3** (input dataset and output predictions). Deployment model: managed ephemeral batch inference jobs.
+A batch inference option that provisions temporary compute to score an entire dataset in S3, writes predictions back to S3, and shuts resources down after the job completes. The FAQ/exam point is that Batch Transform creates no persistent endpoint and is designed for offline scoring where predictions are not needed synchronously. Standard integrations: **S3** input/output, SageMaker model artifacts, IAM, VPC, KMS, and CloudWatch logs; deployment model: managed ephemeral batch inference jobs.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "score an entire dataset at once"
@@ -910,8 +1054,12 @@ SageMaker Asynchronous Inference - Asynchronous Inference maintains a **scalable
 
 ## SageMaker Model Monitor
 
+**Scope:** `MONITOR`
+
 ### Definition & Purpose
-A continuous validation service designed to audit the performance of real-time endpoints **live in production**, monitoring incoming payloads and alerting engineers (via CloudWatch) to operational drift (Data Drift and Concept Drift). Standard integration: **CloudWatch** (alerts on detected drift). Deployment model: fully managed continuous production monitoring for SageMaker endpoints.
+A continuous production monitoring capability for SageMaker endpoints that compares live inference data and model quality signals against baselines. The FAQ/exam distinction is ongoing monitoring after deployment: Model Monitor detects data quality issues, model quality degradation, bias drift, and feature attribution drift, while surfacing violations through reports and CloudWatch. Standard integrations: SageMaker endpoints, captured inference data in **S3**, baselines, **CloudWatch** metrics/alarms, and Clarify-related bias/explainability checks; deployment model: fully managed continuous production monitoring for SageMaker endpoints.
+
+**Official FAQ/reference:** https://aws.amazon.com/sagemaker/ai/faqs/
 
 ### Exam Triggers
 - "detect data drift or concept drift in a production model"
@@ -923,7 +1071,7 @@ SageMaker Clarify - Clarify performs point-in-time bias/explainability analysis 
 ▎ Choose SageMaker Model Monitor if you need continuous monitoring for data drift, concept drift, and production endpoint quality over time / Choose SageMaker Clarify if you need one-time bias, fairness, or explainability analysis.
 
 ### Security & FAQ Insights
-- Operates exclusively on real-time production endpoints, not on training or batch jobs.
+- Supports both **real-time production endpoints** (continuous monitoring) and **batch transform jobs** (scheduled monitoring); added batch transform support in October 2022.
 - Data Drift = the statistical distribution of input data diverges from the training data; Concept Drift = the relationship between inputs and outputs changes over time, degrading prediction accuracy.
 
 ### 🔥 Exam Weight
